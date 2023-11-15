@@ -5,14 +5,16 @@ You can run it with 'python gp_example.py'.
 
 
 from gapp import gp
-from numpy import loadtxt, savetxt
+import numpy as np
+import os
 
 
 
 if __name__=="__main__":
     # load the data from inputdata.txt
-    X = loadtxt("../2d-inputdata.txt", usecols=(0,1))
-    (Y, Sigma) = loadtxt("../2d-inputdata.txt", usecols=(2,3), unpack='True')
+    file_path = os.path.abspath('2d-inputdata.txt')
+    X = np.loadtxt(file_path, usecols=(0,1))
+    (Y, Sigma) = np.loadtxt(file_path, usecols=(2,3), unpack='True')
 
 
     # nstar*nstar points of the function will be reconstructed
@@ -31,7 +33,7 @@ if __name__=="__main__":
     (rec, theta) = g.gp(theta=initheta)
 
     # save the output
-    savetxt("f.txt", rec)
+    np.savetxt("f.txt", rec)
 
 
 

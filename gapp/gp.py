@@ -114,7 +114,7 @@ class GaussianProcess(object):
                     xmin = xmin * ones(d)
                 if(xmax != None and shape(xmax) in [(), (1, )]):
                     xmax = xmax * ones(d)
-            if (xmin == None or xmax == None):
+            if (xmin is None or xmax is None):
                 self.auto_create_Xstar(xmin, xmax, nstar)
             else:
                 self.create_Xstar(xmin, xmax, nstar)
@@ -349,7 +349,7 @@ class GaussianProcess(object):
 
     # create vector Xstar with nstar values between xmin and xmax
     def create_Xstar(self, xmin, xmax, nstar):
-        if (xmin == None or xmax == None):
+        if (xmin is None or xmax is None):
             self.auto_create_Xstar(xmin, xmax, nstar)
         else:
             if (shape(xmin) in [(), (1, ), (1, 1)]):
@@ -359,7 +359,7 @@ class GaussianProcess(object):
                     Xstar[i] = xmin + i * (xmax - xmin)/float(nstar - 1)
                 self.Xstar = reshape(Xstar, (nstar, 1))
             else:
-                Nstar = nstar * ones((len(xmin)), dtype=np.int)
+                Nstar = nstar * ones((len(xmin)), dtype=int)
                 self.create_md_Xstar(xmin, xmax, Nstar)
 
     # create vector Xstar with nstar values. xmin and xmax are determined
@@ -494,7 +494,7 @@ class GaussianProcess(object):
         else:
             priorlogp = 0.0
         # calculate the negative log marginal likelihood
-        if (self.alpha == None):
+        if (self.alpha is None):
             logp = 1.0e+20 - priorlogp
         else:
             logp = -(-0.5 * dot(transpose(self.Y_mu), self.alpha) -
@@ -511,7 +511,7 @@ class GaussianProcess(object):
             self.grad_covariance()
             self.uptodate = 'True'
         logp = self.nlog_likelihood()
-        if (self.alpha == None):
+        if (self.alpha is None):
             try:
                 self.gradlogp = 0.9 * self.gradlogp
                 return (logp, array(-self.gradlogp))
@@ -565,7 +565,7 @@ class GaussianProcess(object):
             if (self.grad == 'True'):
                 self.grad_covariance()
             self.uptodate = 'True'
-        if (self.alpha == None):
+        if (self.alpha is None):
             raise RuntimeError('invalid hyperparameters; ' +
                                'covariance matrix not positive definit')
         # calculate covariance vector kstar
