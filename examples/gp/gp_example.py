@@ -4,10 +4,11 @@ You can run it with 'python gp_example.py'.
 """
 
 
-from gapp import gp
-import numpy as np
 import os
 
+import numpy as np
+
+from gapp import gp
 
 if __name__ == "__main__":
     # load the data from inputdata.txt

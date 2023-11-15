@@ -23,10 +23,12 @@
 """
 
 
-from . import cov
+import warnings
+
 import numpy as np
 from numpy import concatenate, reshape
-import warnings
+
+from . import cov
 
 
 class DoubleCovariance(cov.CovarianceFunction):

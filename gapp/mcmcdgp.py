@@ -23,11 +23,13 @@
 """
 
 
-import dgp, covariance
-import numpy as np
-from numpy import array, concatenate, ones, random, reshape, shape, zeros
 import multiprocessing
 import warnings
+
+import covariance
+import dgp
+import numpy as np
+from numpy import array, concatenate, ones, random, reshape, shape, zeros
 
 
 def mcmc_log_likelihood(

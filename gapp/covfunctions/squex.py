@@ -23,10 +23,12 @@
 """
 
 
-from . import cov
+import warnings
+
 import numpy as np
 from numpy import array, exp, reshape, sqrt
-import warnings
+
+from . import cov
 
 
 class SquaredExponential(cov.CovarianceFunction):

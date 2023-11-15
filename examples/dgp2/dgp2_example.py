@@ -4,9 +4,9 @@ You can run it with 'python dgp2_example.py'.
 """
 
 
-from gapp import dgp, covariance
 from numpy import loadtxt, savetxt
 
+from gapp import covariance, dgp
 
 if __name__ == "__main__":
     # load the measurements of f(x) from inputdata.txt

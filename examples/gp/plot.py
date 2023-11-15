@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter, LinearLocator
 from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from numpy import loadtxt, reshape, sqrt, sin, cos
+from numpy import cos, loadtxt, reshape, sin, sqrt
 
 
 def plot(X1, X2, Y, Sigma, x1s, x2s, ys):

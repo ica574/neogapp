@@ -23,10 +23,12 @@
 """
 
 
-import gp, covariance
+import multiprocessing
+
+import covariance
+import gp
 import numpy as np
 from numpy import array, concatenate, ones, random, reshape, shape, zeros
-import multiprocessing
 
 
 def mcmc_log_likelihood(th, sc0, X, Y_mu, Sigma, covfunction, prior, priorargs):

@@ -23,10 +23,12 @@
 """
 
 
-from . import cov
+import warnings
+
 import numpy as np
 from numpy import array, concatenate, exp, insert, reshape, sqrt, zeros
-import warnings
+
+from . import cov
 
 
 class MultiDDoubleSquaredExponential(cov.CovarianceFunction):

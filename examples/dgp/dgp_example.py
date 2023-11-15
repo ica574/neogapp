@@ -4,9 +4,9 @@ You can run it with 'python dgp_example.py'.
 """
 
 
-from gapp import dgp
 from numpy import loadtxt, savetxt
 
+from gapp import dgp
 
 if __name__ == "__main__":
     # load the data from inputdata.txt

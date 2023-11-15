@@ -1,7 +1,7 @@
-from gapp import mcmcdgp
 import numpy as np
 from numpy import loadtxt, random, savetxt, zeros
 
+from gapp import mcmcdgp
 
 if __name__ == "__main__":
     (X, Y, Sigma) = loadtxt("../inputdata.txt", unpack="True")
