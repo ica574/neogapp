@@ -36,7 +36,7 @@ class DoubleCovariance(cov.CovarianceFunction):
         self.covf2 = covfunction2(None, X, Y)
         self.lth1 = len(self.covf1.theta)
         self.lth2 = len(self.covf2.theta)
-        if(theta == None):
+        if(theta is None):
             theta = concatenate((self.covf1.theta, self.covf2.theta))
         else:
             self.covf1.theta = theta[:self.lth1]

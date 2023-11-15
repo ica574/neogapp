@@ -44,12 +44,12 @@ class DGaussianProcess(gp.GaussianProcess):
                  theta=None, dX=None, dY=None, dSigma=None, Xstar=None,
                  cXstar=None, mu=None, dmu=None, d2mu=None, d3mu=None,
                  muargs=(), prior=None, gradprior=None, priorargs=(),
-                 thetatrain='True', scale=None, scaletrain='True', 
+                 thetatrain='True', scale=None, scaletrain='True',
                  grad='True'):
-        assert (shape(X) == () or shape(X) == (len(X), ) or 
+        assert (shape(X) == () or shape(X) == (len(X), ) or
                 shape(X) == (len(X), 1)), \
             "X must be 1-dimensional."
-        gp.GaussianProcess.__init__(self, X, Y, Sigma, covfunction, 
+        gp.GaussianProcess.__init__(self, X, Y, Sigma, covfunction,
                                     theta, Xstar, cXstar, mu, muargs,
                                     prior, gradprior, priorargs,
                                     thetatrain, scale, scaletrain, grad)
@@ -64,7 +64,7 @@ class DGaussianProcess(gp.GaussianProcess):
 
     # set observational data of the derivative of f(x)
     def set_ddata(self, dX, dY, dSigma):
-        if (dX == None or dY == None or dSigma == None):
+        if (dX is None or dY is None or dSigma is None):
             self.dX = None
             self.dY = None
             self.dY_dmu = None
@@ -72,11 +72,11 @@ class DGaussianProcess(gp.GaussianProcess):
             self.dmuptodate = 'False'
         elif (type(dX) and type(dY) and type(dSigma) in [type(1), type(1.0)]):
             self.dX = array(reshape(dX, (1, 1)))
-            self.dY = array(reshape(dY, (1, )))          
-            # if Sigma is a number, it is considered to be an error which is 
+            self.dY = array(reshape(dY, (1, )))
+            # if Sigma is a number, it is considered to be an error which is
             # turned into a covariance matrix
-            self.dSigma = array(reshape(dSigma**2, (1, 1))) 
-            self.dn = 1           
+            self.dSigma = array(reshape(dSigma**2, (1, 1)))
+            self.dn = 1
             try:
                 if (self.dmu != None):
                     self.subtract_dmu()
@@ -89,7 +89,7 @@ class DGaussianProcess(gp.GaussianProcess):
                 "dX, dY and dSigma must have same length."
             if(shape(dX) == (dn, )):
                 dX = reshape(dX, (dn, 1))
-            self.dX = array(dX)   
+            self.dX = array(dX)
             self.dY = array(dY)
             # data covariance matrix
             if (shape(dSigma) == (dn, dn)):
@@ -113,13 +113,13 @@ class DGaussianProcess(gp.GaussianProcess):
     def set_dmu(self, dmu):
         self.uptodate = 'False'
         self.dmuptodate = 'False'
-        if (self.mu == None and dmu != None):
+        if (self.mu is None and dmu != None):
             warnings.warn("dmu given, but mu=None. dmu will be ignored.")
             self.dmu = None
         else:
             self.dmu = dmu
         if (self.dY != None):
-            if(dmu == None):
+            if(dmu is None):
                 self.dY_dmu = self.dY[:]
             else:
                 self.subtract_dmu()
@@ -128,7 +128,7 @@ class DGaussianProcess(gp.GaussianProcess):
     def set_d2mu(self, d2mu):
         self.uptodate = 'False'
         self.dmuptodate = 'False'
-        if (self.mu == None and d2mu != None):
+        if (self.mu is None and d2mu != None):
             warnings.warn("d2mu given, but mu=None. d2mu will be ignored.")
             self.d2mu = None
         else:
@@ -138,7 +138,7 @@ class DGaussianProcess(gp.GaussianProcess):
     def set_d3mu(self, d3mu):
         self.uptodate = 'False'
         self.dmuptodate = 'False'
-        if (self.mu == None and d3mu != None):
+        if (self.mu is None and d3mu != None):
             warnings.warn("d3mu given, but mu=None. d3mu will be ignored.")
             self.d3mu = None
         else:
@@ -152,11 +152,11 @@ class DGaussianProcess(gp.GaussianProcess):
         self.dmuptodate = 'False'
 
 
-    def log_likelihood(self, theta=None, dX='False', dY='False', 
+    def log_likelihood(self, theta=None, dX='False', dY='False',
                        dSigma='False', mu='False', dmu='False', muargs=(),
                        prior='False', priorargs=(), scale='False'):
         # set new attributes
-        if (theta != None): 
+        if (theta != None):
             self.set_theta(theta)
         if (dX != 'False' and dY != 'False' and dSigma != 'False'):
             self.set_ddata(dX, dY, dSigma)
@@ -167,19 +167,19 @@ class DGaussianProcess(gp.GaussianProcess):
                 warnings.warn("dX, dY and dSigma have to be changed " +
                               "simultaneously. Old values of dX, dY " +
                               "and dSigma will be used.")
-        if (mu != 'False'): 
+        if (mu != 'False'):
             self.set_mu(mu, muargs)
-        if (dmu != 'False'): 
+        if (dmu != 'False'):
             self.set_dmu(dmu)
-        if (prior != 'False'): 
+        if (prior != 'False'):
             self.set_prior(prior, self.gradprior, priorargs)
-        if (scale != 'False'): 
+        if (scale != 'False'):
             self.set_scale(scale)
-        if (self.dX == None):
+        if (self.dX is None):
             return(-self.nlog_likelihood())
         else:
             return(-self.dm_nlog_likelihood())
-        
+
 
     # train the hyperparameters
     def hypertrain(self, theta=None, dX='False', dY='False', dSigma='False',
@@ -187,7 +187,7 @@ class DGaussianProcess(gp.GaussianProcess):
                    gradprior=None, priorargs=(), thetatrain=None,
                    scale='False', scaletrain=None, grad=None):
         # set new attributes
-        if (theta != None): 
+        if (theta != None):
             self.set_theta(theta)
         if (dX != 'False' and dY != 'False' and dSigma != 'False'):
             self.set_ddata(dX, dY, dSigma)
@@ -198,28 +198,28 @@ class DGaussianProcess(gp.GaussianProcess):
                 warnings.warn("dX, dY and dSigma have to be changed " +
                               "simultaneously. Old values of dX, dY " +
                               "and dSigma will be used.")
-        if (mu != 'False'): 
+        if (mu != 'False'):
             self.set_mu(mu, muargs)
-        if (dmu != 'False'): 
+        if (dmu != 'False'):
             self.set_dmu(dmu)
-        if (prior != 'False'): 
+        if (prior != 'False'):
             self.set_prior(prior, gradprior, priorargs)
-        if (thetatrain != None): 
+        if (thetatrain != None):
             self.set_thetatrain(thetatrain)
-        if (scale != 'False'): 
-            if (scaletrain == None): 
+        if (scale != 'False'):
+            if (scaletrain is None):
                 scaletrain = 'True'
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
         elif (scaletrain != None):
             self.set_scaletrain(scaletrain)
-        if (grad != None): 
+        if (grad != None):
             self.set_grad(grad)
         if (self.thetatrain == 'False' and self.covf.scaletrain == 'False'):
             raise RuntimeError("thetatrain='False' and scaletrain=='False', " +
                                "i.e. no parameters are to be trained.")
         # train the hyperparameters
-        if (self.dX == None):
+        if (self.dX is None):
             return(self.fhypertrain())
         else:
             return(self.dm_hypertrain())
@@ -231,12 +231,12 @@ class DGaussianProcess(gp.GaussianProcess):
     ############
 
     # full Gaussian process run
-    def gp(self, theta=None, dX='False', dY='False', dSigma='False', 
+    def gp(self, theta=None, dX='False', dY='False', dSigma='False',
            Xstar=None, cXstar=None, mu='False', dmu='False', muargs=(),
            prior='False', gradprior=None, priorargs=(), thetatrain=None,
            scale='False', scaletrain=None, grad=None, unpack='False'):
         # set new attributes
-        if (theta != None): 
+        if (theta != None):
             self.set_theta(theta)
         if (dX != 'False' and dY != 'False' and dSigma != 'False'):
             self.set_ddata(dX, dY, dSigma)
@@ -247,34 +247,34 @@ class DGaussianProcess(gp.GaussianProcess):
                 warnings.warn("dX, dY and dSigma have to be changed " +
                               "simultaneously. Old values of dX, dY " +
                               "and dSigma will be used.")
-        if (Xstar != None): 
+        if (Xstar != None):
             self.set_Xstar(Xstar)
             if (cXstar != None):
                 warnings.warn("Xstar and cXstar given in dpg.gp. \n" +
                               "cXstar will be ignored.")
-        elif (cXstar != None): 
+        elif (cXstar != None):
             self.create_Xstar(cXstar[0], cXstar[1], cXstar[2])
-        if (mu != 'False'): 
+        if (mu != 'False'):
             self.set_mu(mu, muargs)
         if (dmu != 'False'):
             self.set_dmu(dmu)
         if (prior != 'False'):
             self.set_prior(prior, gradprior, priorargs)
-        if (thetatrain != None): 
+        if (thetatrain != None):
             self.set_thetatrain(thetatrain)
-        if (scale != 'False'): 
-            if (scaletrain == None):
+        if (scale != 'False'):
+            if (scaletrain is None):
                 scaletrain = 'True'
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
         if (grad != None):
             self.set_grad(grad)
         # GP run
-        if (self.dX == None):
+        if (self.dX is None):
             return(self.fgp(unpack=unpack))
         else:
             return(self.dm_gp(unpack=unpack))
-        
+
 
 
     ####################
@@ -291,7 +291,7 @@ class DGaussianProcess(gp.GaussianProcess):
             dkstar[i] = self.covf.dcovfunc()
         return dkstar
 
-    # calculate the predictive mean and standard deviation of (f'-mu') at 
+    # calculate the predictive mean and standard deviation of (f'-mu') at
     # test point xstar
     def dprediction(self, xstar):
         if (self.uptodate == 'False'):
@@ -300,7 +300,7 @@ class DGaussianProcess(gp.GaussianProcess):
             if (self.grad == 'True'):
                 self.grad_covariance()
             self.uptodate = 'True'
-        if (self.alpha == None):
+        if (self.alpha is None):
             raise RuntimeError("Invalid hyperparameters. Covariance matrix" +
                                " not positive definit.")
         # calculate covariance vector kstar
@@ -315,7 +315,7 @@ class DGaussianProcess(gp.GaussianProcess):
         stdev = sqrt(covstar - dot(transpose(v), v))
         return(mean, stdev)
 
-    def dgp(self, theta=None, dX='False', dY='False', dSigma='False', 
+    def dgp(self, theta=None, dX='False', dY='False', dSigma='False',
             Xstar=None, cXstar=None, mu='False', dmu='False', muargs=(),
             prior='False', gradprior=None, priorargs=(), thetatrain=None,
             scale='False', scaletrain=None, grad=None, unpack='False'):
@@ -328,29 +328,29 @@ class DGaussianProcess(gp.GaussianProcess):
             if (dX != None or dY != None or dSigma != None):
                 self.set_ddata(None, None, None)
             else:
-                warnings.warn("dX, dY and dSigma have to be changed " + 
+                warnings.warn("dX, dY and dSigma have to be changed " +
                               "simultaneously. Old values of dX, dY and " +
                               "dSigma will be used.")
-        if (Xstar != None): 
+        if (Xstar != None):
             self.set_Xstar(Xstar)
             if (cXstar != None):
                 warnings.warn("Xstar and cXstar given. cXstar will be" +
                               " ignored.")
-        elif (cXstar != None): 
+        elif (cXstar != None):
             self.create_Xstar(cXstar[0], cXstar[1], cXstar[2])
-        if (mu != 'False'): 
+        if (mu != 'False'):
             self.set_mu(mu, muargs)
-        if (dmu != 'False'): 
+        if (dmu != 'False'):
             self.set_dmu(dmu)
-        if (self.dmu == None and self.mu != None):
+        if (self.dmu is None and self.mu != None):
             warnings.warn("mu given, but dmu=None. mu will be ignored")
             self.unset_mu()
-        if (prior != 'False'): 
+        if (prior != 'False'):
             self.set_prior(prior, gradprior, priorargs)
         if (thetatrain != None):
             self.set_thetatrain(thetatrain)
-        if (scale != 'False'): 
-            if (scaletrain == None): 
+        if (scale != 'False'):
+            if (scaletrain is None):
                 scaletrain = 'True'
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
@@ -359,15 +359,15 @@ class DGaussianProcess(gp.GaussianProcess):
         if (grad != None):
             self.set_grad(grad)
         # GP run
-        if (self.dX == None):
+        if (self.dX is None):
             return(self.fdgp(unpack=unpack))
         else:
             return(self.dm_dgp(unpack=unpack))
-        
+
 
     def fdgp(self, unpack):
         # train the hyperparameters
-        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or 
+        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or
             self.covf.dscaletrain == 'True'):
             self.hypertrain()
         # reconstruct f'(x)
@@ -378,7 +378,7 @@ class DGaussianProcess(gp.GaussianProcess):
             (dfmean_mu[i], dfstd[i]) = self.dprediction(self.Xstar[i, :])
         if (self.mu != None):
             for i in range(self.nstar):
-                dfmean[i] = dfmean_mu[i] + self.dmu(self.Xstar[i], 
+                dfmean[i] = dfmean_mu[i] + self.dmu(self.Xstar[i],
                                                     *self.muargs)
         else:
             dfmean[:] = dfmean_mu[:]
@@ -386,11 +386,11 @@ class DGaussianProcess(gp.GaussianProcess):
         self.dfstd_mu = dfstd
         self.dfmean = dfmean
         self.dfstd = dfstd
-        self.dreconstruction = concatenate((self.Xstar, 
+        self.dreconstruction = concatenate((self.Xstar,
                                             reshape(dfmean, (self.nstar, 1)),
-                                            reshape(dfstd, (self.nstar, 1))), 
+                                            reshape(dfstd, (self.nstar, 1))),
                                            axis=1)
-        if (self.scale == None):
+        if (self.scale is None):
             if (unpack == 'False'):
                 return(self.dreconstruction, self.covf.theta)
             else:
@@ -417,7 +417,7 @@ class DGaussianProcess(gp.GaussianProcess):
             d2kstar[i] = self.covf.d2covfunc()
         return d2kstar
 
-    # calculate the predictive mean and standard deviation of (f''-mu'') 
+    # calculate the predictive mean and standard deviation of (f''-mu'')
     # at test point xstar
     def d2prediction(self, xstar):
         if (self.uptodate == 'False'):
@@ -426,7 +426,7 @@ class DGaussianProcess(gp.GaussianProcess):
             if (self.grad == 'True'):
                 self.grad_covariance()
             self.uptodate = 'True'
-        if (self.alpha == None):
+        if (self.alpha is None):
             raise RuntimeError("Invalid hyperparameters. Covariance matrix " +
                                "not positive definit")
         # calculate covariance vector kstar
@@ -441,13 +441,13 @@ class DGaussianProcess(gp.GaussianProcess):
         stdev = sqrt(covstar - dot(transpose(v), v))
         return(mean, stdev)
 
-    def d2gp(self, theta=None, dX='False', dY='False', dSigma='False', 
+    def d2gp(self, theta=None, dX='False', dY='False', dSigma='False',
              Xstar=None, cXstar=None, mu='False', dmu='False', d2mu='False',
              muargs=(), prior='False', gradprior=None, priorargs=(),
              thetatrain=None, scale='False', scaletrain=None, grad=None,
              unpack='False'):
         # set new attributes
-        if (theta != None): 
+        if (theta != None):
             self.set_theta(theta)
         if (dX != 'False' and dY != 'False' and dSigma != 'False'):
             self.set_ddata(dX, dY, dSigma)
@@ -458,47 +458,47 @@ class DGaussianProcess(gp.GaussianProcess):
                 warnings.warn("dX, dY and dSigma have to be changed " +
                               "simultaneously. Old values of dX, dY " +
                               "and dSigma will be used.")
-        if (Xstar != None): 
+        if (Xstar != None):
             self.set_Xstar(Xstar)
             if (cXstar != None):
                 warnings.warn("Xstar and cXstar given. cXstar will " +
                               "be ignored.")
-        elif (cXstar != None): 
+        elif (cXstar != None):
             self.create_Xstar(cXstar[0], cXstar[1], cXstar[2])
         if (mu != 'False'):
             self.set_mu(mu, muargs)
-        if (dmu != 'False'): 
+        if (dmu != 'False'):
             self.set_dmu(dmu)
         if (d2mu != 'False'):
             self.set_d2mu(d2mu)
-        if (self.dX != None and self.dmu == None and self.mu != None):
+        if (self.dX != None and self.dmu is None and self.mu != None):
             warnings.warn("mu given, but dmu=None. mu will be ignored")
             self.unset_mu()
-        if (self.d2mu == None and self.mu != None):
+        if (self.d2mu is None and self.mu != None):
             warnings.warn("mu given, but d2mu=None. mu will be ignored")
             self.unset_mu()
-        if (prior != 'False'): 
+        if (prior != 'False'):
             self.set_prior(prior, gradprior, priorargs)
         if (thetatrain != None):
             self.set_thetatrain(thetatrain)
-        if (scale != 'False'): 
-            if (scaletrain == None):
+        if (scale != 'False'):
+            if (scaletrain is None):
                 scaletrain = 'True'
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
         if (grad != None):
             self.set_grad(grad)
         # GP run
-        if (self.dX == None):
+        if (self.dX is None):
             return(self.fd2gp(unpack=unpack))
         else:
             return(self.dm_d2gp(unpack=unpack))
 
-    
+
 
     def fd2gp(self, unpack):
         # train the hyperparameters
-        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or 
+        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or
             self.covf.dscaletrain == 'True'):
             self.hypertrain()
         # reconstruct f'(x)
@@ -521,7 +521,7 @@ class DGaussianProcess(gp.GaussianProcess):
                                              reshape(d2fmean, (self.nstar, 1)),
                                              reshape(d2fstd, (self.nstar, 1))),
                                             axis=1)
-        if (self.scale == None):
+        if (self.scale is None):
             if (unpack == 'False'):
                 return(self.d2reconstruction, self.covf.theta)
             else:
@@ -548,7 +548,7 @@ class DGaussianProcess(gp.GaussianProcess):
             d3kstar[i] = self.covf.d3covfunc()
         return d3kstar
 
-    # calculate the predictive mean and standard deviation of (f'''-mu''') at 
+    # calculate the predictive mean and standard deviation of (f'''-mu''') at
     # test point xstar
     def d3prediction(self, xstar):
         if (self.uptodate == 'False'):
@@ -557,7 +557,7 @@ class DGaussianProcess(gp.GaussianProcess):
             if (self.grad == 'True'):
                 self.grad_covariance()
             self.uptodate = 'True'
-        if (self.alpha == None):
+        if (self.alpha is None):
             raise RuntimeError("Invalid hyperparameters. Covariance matrix " +
                                "not positive definit.")
         # calculate covariance vector kstar
@@ -573,7 +573,7 @@ class DGaussianProcess(gp.GaussianProcess):
         return (mean, stdev)
 
 
-    def d3gp(self, theta=None, dX='False', dY='False', dSigma='False', 
+    def d3gp(self, theta=None, dX='False', dY='False', dSigma='False',
              Xstar=None, cXstar=None, mu='False', dmu='False', d3mu='False',
              muargs=(), prior='False', gradprior=None, priorargs=(),
              thetatrain=None, scale='False', scaletrain=None, grad=None,
@@ -590,7 +590,7 @@ class DGaussianProcess(gp.GaussianProcess):
                 warnings.warn("dX, dY and dSigma have to be changed " +
                               "simultaneously. Old values of dX, dY "+
                               "and dSigma will be used.")
-        if (Xstar != None): 
+        if (Xstar != None):
             self.set_Xstar(Xstar)
             if (cXstar != None):
                 warnings.warn("Xstar and cXstar given. cXstar will be" +
@@ -599,36 +599,36 @@ class DGaussianProcess(gp.GaussianProcess):
             self.create_Xstar(cXstar[0], cXstar[1], cXstar[2])
         if (mu != 'False'):
             self.set_mu(mu, muargs)
-        if (dmu != 'False'): 
+        if (dmu != 'False'):
             self.set_dmu(dmu)
         if (d3mu != 'False'):
             self.set_d3mu(d3mu)
-        if (self.dX != None and self.dmu == None and self.mu != None):
+        if (self.dX != None and self.dmu is None and self.mu != None):
             warnings.warn("mu given, but dmu=None. mu will be ignored")
             self.unset_mu()
-        if (self.d3mu == None and self.mu != None):
+        if (self.d3mu is None and self.mu != None):
             warnings.warn("mu given, but d3mu=None. mu will be ignored")
             self.unset_mu()
         if (prior != 'False'):
             self.set_prior(prior, gradprior, priorargs)
         if (thetatrain != None):
             self.set_thetatrain(thetatrain)
-        if (scale != 'False'): 
-            if (scaletrain == None):
+        if (scale != 'False'):
+            if (scaletrain is None):
                 scaletrain = 'True'
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
         if (grad != None):
             self.set_grad(grad)
         # GP run
-        if (self.dX == None):
+        if (self.dX is None):
             return(self.fd3gp(unpack=unpack))
         else:
             return(self.dm_d3gp(unpack=unpack))
 
     def fd3gp(self, unpack):
         # train the hyperparameters
-        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or 
+        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or
             self.covf.dscaletrain == 'True'):
             self.hypertrain()
         # reconstruct f'(x)
@@ -651,7 +651,7 @@ class DGaussianProcess(gp.GaussianProcess):
                                              reshape(d3fmean, (self.nstar, 1)),
                                              reshape(d3fstd, (self.nstar, 1))),
                                             axis=1)
-        if (self.scale == None):
+        if (self.scale is None):
             if (unpack == 'False'):
                 return(self.d3reconstruction, self.covf.theta)
             else:
@@ -731,7 +731,7 @@ class DGaussianProcess(gp.GaussianProcess):
 
     # covariances between f and its derivatives at Xstar
     def f_covariances(self, fclist=[0,1,2,3]):
-        if (self.dX == None):
+        if (self.dX is None):
             return(self.ff_covariances(fclist))
         else:
             return(self.dm_f_covariances(fclist))
@@ -825,7 +825,7 @@ class DGaussianProcess(gp.GaussianProcess):
         self.input_covariance()
         A = zeros((n + dn, n + dn))
         A[:n, :n] = self.K[:, :]
-        if (self.scale == None):
+        if (self.scale is None):
             A[:n, :n] = A[:n, :n] + self.Sigma[:, :]
         else:
             A[:n, :n] = A[:n, :n] + self.scale**2 * self.Sigma[:, :]
@@ -843,7 +843,7 @@ class DGaussianProcess(gp.GaussianProcess):
                 self.covf.x2 = self.dX[j]
                 A[i, n+j] = self.covf.dcovfunc()
                 A[n+j, i] = A[i, n+j]
-        if (self.covf.dscale == None):
+        if (self.covf.dscale is None):
             A[n:, n:] = A[n:, n:] + self.dSigma[:, :]
         else:
             A[n:, n:] = A[n:, n:] + self.covf.dscale**2 * self.dSigma[:, :]
@@ -890,7 +890,7 @@ class DGaussianProcess(gp.GaussianProcess):
         self.dmgradK = gradK
 
 
-    # calculates alpha = (K + sigma)^{-1}Y 
+    # calculates alpha = (K + sigma)^{-1}Y
     # and the Cholesky decomposition L
     def dm_alpha_L(self):
         A = self.dmA
@@ -900,7 +900,7 @@ class DGaussianProcess(gp.GaussianProcess):
             b = linalg.solve(L, YdY)
             self.dmalpha = linalg.solve(transpose(L), b)
             self.dmL = L
-        except np.linalg.linalg.LinAlgError: 
+        except np.linalg.linalg.LinAlgError:
             # A not positive definit
             self.dmalpha = None
             self.dmL = None
@@ -940,14 +940,14 @@ class DGaussianProcess(gp.GaussianProcess):
         else:
             priorlogp = 0.0
         YdY = concatenate((self.Y_mu, self.dY_dmu))
-        if (self.dmalpha == None):
+        if (self.dmalpha is None):
             logp = 1.0e+20 - priorlogp
         else:
-            logp = -(-0.5 * dot(YdY, self.dmalpha) - 
-                      np.sum(log(diagonal(self.dmL))) - 
+            logp = -(-0.5 * dot(YdY, self.dmalpha) -
+                      np.sum(log(diagonal(self.dmL))) -
                       (self.n + self.dn)/2 * log(2 * pi) + priorlogp)
         return logp
-        
+
     # calculate the grad log likelihood
     def dm_grad_nlog_likelihood(self):
         if (self.dmuptodate == 'False'):
@@ -956,7 +956,7 @@ class DGaussianProcess(gp.GaussianProcess):
             self.dm_grad_covariance()
             self.dmuptodate = 'True'
         logp = self.dm_nlog_likelihood()
-        if (self.dmalpha == None):
+        if (self.dmalpha is None):
             try:
                 self.dmgradlogp = 0.9 * self.dmgradlogp
                 return (logp, array(-self.dmgradlogp))
@@ -978,13 +978,13 @@ class DGaussianProcess(gp.GaussianProcess):
         trinvAgradK = zeros(nh)
         for t in range(nh):
             for i in range(self.n + self.dn):
-                trinvAgradK[t] = trinvAgradK[t] + np.sum(invA[i, :] * 
+                trinvAgradK[t] = trinvAgradK[t] + np.sum(invA[i, :] *
                                                          self.dmgradK[t, :, i])
         # gradient of the prior log likelihood
         gradpriorlogp = zeros(nh)
         if (self.gradprior != None):
             gradpriorp = self.gradprior(self.covf.theta, *self.priorargs)
-            if (self.prior == None):
+            if (self.prior is None):
                 warnings.warn("No prior given. gradprior will be ignored")
             else:
                 priorp = self.prior(self.covf.theta, *self.priorargs)
@@ -996,12 +996,12 @@ class DGaussianProcess(gp.GaussianProcess):
                     else:
                         gradpriorlogp[t] = gradpriorp[t]/priorp
         # gradient of the negative log likelihood
-        gradlogp = array(-0.5 * (traaTgradK[:] - trinvAgradK[:]) - 
+        gradlogp = array(-0.5 * (traaTgradK[:] - trinvAgradK[:]) -
                           gradpriorlogp)
         self.dmgradlogp = gradlogp
         return (logp, gradlogp)
 
-    # calculate the predictive mean and standard deviation of (f-mu) at 
+    # calculate the predictive mean and standard deviation of (f-mu) at
     # test point xstar
     def dm_prediction(self, xstar):
         if (self.dmuptodate == 'False'):
@@ -1010,7 +1010,7 @@ class DGaussianProcess(gp.GaussianProcess):
             if (self.grad == 'True'):
                 self.dm_grad_covariance()
             self.dmuptodate = 'True'
-        if (self.dmalpha == None):
+        if (self.dmalpha is None):
             raise RuntimeError("Invalid hyperparameters. Covariance matrix " +
                                "not positive definit")
         # calculate covariance vector kstar
@@ -1031,25 +1031,25 @@ class DGaussianProcess(gp.GaussianProcess):
         # train the hyperparameters
         initheta = self.covf.theta
         if (self.grad == 'True'):
-            if (self.prior != None and self.gradprior == None):
-                raise RuntimeError("no gradprior given in " + 
-                                   "grad_nlog_likelihood \n" + 
-                                   "Possible solutions: \n" + 
-                                   "(1) provide gradient of the prior, " + 
-                                   "gradprior \n" + 
-                                   "(2) set prior=None, i.e. no prior on" + 
-                                   " the hyperparameters will be used \n" + 
-                                   "(3) set grad='False', i.e. prior will" + 
+            if (self.prior != None and self.gradprior is None):
+                raise RuntimeError("no gradprior given in " +
+                                   "grad_nlog_likelihood \n" +
+                                   "Possible solutions: \n" +
+                                   "(1) provide gradient of the prior, " +
+                                   "gradprior \n" +
+                                   "(2) set prior=None, i.e. no prior on" +
+                                   " the hyperparameters will be used \n" +
+                                   "(3) set grad='False', i.e. prior will" +
                                    " be used, but Gaussian process is slower")
             bounds = self.covf.dmbounds()
-            if (self.covf.scaletrain == 'False' and 
+            if (self.covf.scaletrain == 'False' and
                 self.covf.dscaletrain == 'False'):
                 # all hyperparameters will be trained
                 if (self.thetatrain == 'True'):
                     def logpfunc(theta):
                         self.set_theta(theta)
                         return self.dm_grad_nlog_likelihood()
-                    theta = opt.fmin_tnc(logpfunc, initheta, bounds=bounds, 
+                    theta = opt.fmin_tnc(logpfunc, initheta, bounds=bounds,
                                          messages=8)[0]
                 # some hyperparameters will be trained
                 else:
@@ -1085,10 +1085,10 @@ class DGaussianProcess(gp.GaussianProcess):
                     if (self.covf.scaletrain == 'True'):
                         initheta_s = append(initheta_s, self.scale)
                     if (self.covf.dscaletrain == 'True'):
-                        initheta_s = append(array(initheta_s), 
+                        initheta_s = append(array(initheta_s),
                                             self.covf.dscale)
                     sds = [self.scale, self.covf.dscale]
-                    def logpfunc(theta_s): 
+                    def logpfunc(theta_s):
                         if (self.covf.scaletrain == 'True'):
                             sds[0] = theta_s[len(initheta)]
                         if (self.covf.dscaletrain == 'True'):
@@ -1156,10 +1156,10 @@ class DGaussianProcess(gp.GaussianProcess):
                         else:
                             bound.append(bounds[len(initheta)])
                     # array of the initial values of these hyperparameters
-                    initheta_s = append(initheta, (self.scale, 
+                    initheta_s = append(initheta, (self.scale,
                                                    self.covf.dscale))
                     inith_s = take(initheta_s, indices_s)
-                    theta = array(self.covf.theta) 
+                    theta = array(self.covf.theta)
                     sds = [self.scale, self.covf.dscale]
                     def logpfunc(th_s):
                         for i in range(len(indices)):
@@ -1174,7 +1174,7 @@ class DGaussianProcess(gp.GaussianProcess):
                             sds[1] = th_s[len(th_s) - 1]
                         self.set_scale(sds)
                         (logp, gradlogp) = self.dm_grad_nlog_likelihood()
-                        gradlogp = append(take(gradlogp, indices), 
+                        gradlogp = append(take(gradlogp, indices),
                                           gradlogp[len(initheta):])
                         return (logp, gradlogp)
                     th_s = opt.fmin_tnc(logpfunc, inith_s, bounds=bound,
@@ -1198,7 +1198,7 @@ class DGaussianProcess(gp.GaussianProcess):
                 return (self.covf.theta, sds)
         else:
             constraints = self.covf.dmconstraints(self.thetatrain)
-            if (self.covf.scaletrain == 'False' and 
+            if (self.covf.scaletrain == 'False' and
                 self.covf.dscaletrain == 'False'):
                 # all hyperparameters will be trained
                 if (self.thetatrain == 'True'):
@@ -1214,7 +1214,7 @@ class DGaussianProcess(gp.GaussianProcess):
                     indices = flatnonzero(self.thetatrain)
                     # array of the initial values of these hyperparameters
                     inith = take(initheta, indices)
-                    theta = initheta 
+                    theta = initheta
                     def logpfunc(th):
                         for i in range(len(indices)):
                             theta[indices[i]] = th[i]
@@ -1238,7 +1238,7 @@ class DGaussianProcess(gp.GaussianProcess):
                     if (self.covf.dscaletrain == 'True'):
                         initheta_s = append(array(initheta_s), self.covf.dscale)
                     sds = [self.scale, self.covf.dscale]
-                    def logpfunc(theta_s): 
+                    def logpfunc(theta_s):
                         if (self.covf.scaletrain == 'True'):
                             sds[0] = theta_s[len(initheta)]
                         if (self.covf.dscaletrain == 'True'):
@@ -1257,7 +1257,7 @@ class DGaussianProcess(gp.GaussianProcess):
                     theta = resize(theta_s, len(initheta))
                     self.set_theta(theta)
                 # only scale will be trained. hyperparameters are fixed
-                elif (self.thetatrain == 'False'): 
+                elif (self.thetatrain == 'False'):
                     theta = array(self.covf.theta)
                     sc = []
                     if (self.covf.scaletrain == 'True'):
@@ -1291,7 +1291,7 @@ class DGaussianProcess(gp.GaussianProcess):
                         # add index for dscale
                         indices_s = append(indices_s, len(initheta) + 1)
                     # array of the initial values of these hyperparameters
-                    initheta_s = append(initheta, (self.scale, 
+                    initheta_s = append(initheta, (self.scale,
                                                    self.covf.dscale))
                     inith_s = take(initheta_s, indices_s)
                     theta = array(self.covf.theta)
@@ -1335,7 +1335,7 @@ class DGaussianProcess(gp.GaussianProcess):
     # full Gaussian process run
     def dm_gp(self, unpack):
         # train the hyperparameters
-        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or 
+        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or
             self.covf.dscaletrain == 'True'):
             self.dm_hypertrain()
         # reconstruct f(x)
@@ -1357,7 +1357,7 @@ class DGaussianProcess(gp.GaussianProcess):
                                            reshape(fmean, (self.nstar, 1)),
                                            reshape(fstd, (self.nstar, 1))),
                                           axis=1)
-        if (self.covf.scale == None and self.covf.dscale == None):
+        if (self.covf.scale is None and self.covf.dscale is None):
             if (unpack == 'False'):
                 return(self.reconstruction, self.covf.theta)
             else:
@@ -1389,7 +1389,7 @@ class DGaussianProcess(gp.GaussianProcess):
             kstar[self.n + i] = self.covf.ddcovfunc()
         return kstar
 
-    # calculate the predictive mean and standard deviation of (f'-mu') at 
+    # calculate the predictive mean and standard deviation of (f'-mu') at
     # test point xstar
     def dm_d_prediction(self, xstar):
         if (self.dmuptodate == 'False'):
@@ -1398,7 +1398,7 @@ class DGaussianProcess(gp.GaussianProcess):
             if (self.grad == 'True'):
                 self.dm_grad_covariance()
             self.dmuptodate = 'True'
-        if (self.dmalpha == None):
+        if (self.dmalpha is None):
             raise RuntimeError("Invalid hyperparameters. Covariance matrix " +
                                "not positive definit.")
         # calculate covariance vector kstar
@@ -1415,12 +1415,12 @@ class DGaussianProcess(gp.GaussianProcess):
 
 
     # full Gaussian process run
-    def dm_dgp(self, theta=None, Xstar=None, cXstar=None, mu='False', 
+    def dm_dgp(self, theta=None, Xstar=None, cXstar=None, mu='False',
                dmu='False', muargs=(), prior='False', gradprior=None,
                priorargs=(), thetatrain=None, scale='False', scaletrain=None,
                grad=None, unpack='False'):
         # train the hyperparameters
-        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or 
+        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or
             self.covf.dscaletrain == 'True'):
             self.dm_hypertrain()
         # reconstruct f(x)
@@ -1442,7 +1442,7 @@ class DGaussianProcess(gp.GaussianProcess):
                                             reshape(dfmean, (self.nstar, 1)),
                                             reshape(dfstd, (self.nstar, 1))),
                                            axis=1)
-        if (self.covf.scale == None and self.covf.dscale == None):
+        if (self.covf.scale is None and self.covf.dscale is None):
             if (unpack == 'False'):
                 return(self.dreconstruction, self.covf.theta)
             else:
@@ -1452,7 +1452,7 @@ class DGaussianProcess(gp.GaussianProcess):
             if (unpack == 'False'):
                 return(self.dreconstruction, self.covf.theta, sds)
             else:
-                return(self.Xstar, self.dfmean, self.dfstd, self.covf.theta, 
+                return(self.Xstar, self.dfmean, self.dfstd, self.covf.theta,
                        sds)
 
 
@@ -1473,7 +1473,7 @@ class DGaussianProcess(gp.GaussianProcess):
             kstar[self.n + i] = self.covf.dd2covfunc()
         return kstar
 
-    # calculate the predictive mean and standard deviation of (f''-mu'') at 
+    # calculate the predictive mean and standard deviation of (f''-mu'') at
     # test point xstar
     def dm_d2_prediction(self, xstar):
         if (self.dmuptodate == 'False'):
@@ -1482,7 +1482,7 @@ class DGaussianProcess(gp.GaussianProcess):
             if (self.grad == 'True'):
                 self.dm_grad_covariance()
             self.dmuptodate = 'True'
-        if (self.dmalpha == None):
+        if (self.dmalpha is None):
             raise RuntimeError("Invalid hyperparameters. Covariance matrix " +
                                "not positive definit")
         # calculate covariance vector kstar
@@ -1504,7 +1504,7 @@ class DGaussianProcess(gp.GaussianProcess):
                 gradprior=None, priorargs=(), thetatrain=None, scale='False',
                 scaletrain=None, grad=None, unpack='False'):
         # train the hyperparameters
-        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or 
+        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or
             self.covf.dscaletrain == 'True'):
             self.dm_hypertrain()
         # reconstruct f(x)
@@ -1515,7 +1515,7 @@ class DGaussianProcess(gp.GaussianProcess):
             (d2fmean_mu[i], d2fstd[i]) = self.dm_d2_prediction(self.Xstar[i, :])
         if (self.mu != None):
             for i in range(self.nstar):
-                d2fmean[i] = d2fmean_mu[i] + self.d2mu(self.Xstar[i], 
+                d2fmean[i] = d2fmean_mu[i] + self.d2mu(self.Xstar[i],
                                                        *self.muargs)
         else:
             d2fmean[:] = d2fmean_mu[:]
@@ -1527,7 +1527,7 @@ class DGaussianProcess(gp.GaussianProcess):
                                              reshape(d2fmean, (self.nstar, 1)),
                                              reshape(d2fstd, (self.nstar,1))),
                                             axis=1)
-        if (self.covf.scale == None and self.covf.dscale == None):
+        if (self.covf.scale is None and self.covf.dscale is None):
             if (unpack == 'False'):
                 return(self.d2reconstruction, self.covf.theta)
             else:
@@ -1559,7 +1559,7 @@ class DGaussianProcess(gp.GaussianProcess):
             kstar[self.n + i] = self.covf.dd3covfunc()
         return kstar
 
-    # calculate the predictive mean and standard deviation of (f'''-mu''') at 
+    # calculate the predictive mean and standard deviation of (f'''-mu''') at
     # test point xstar
     def dm_d3_prediction(self, xstar):
         if (self.dmuptodate == 'False'):
@@ -1568,7 +1568,7 @@ class DGaussianProcess(gp.GaussianProcess):
             if (self.grad == 'True'):
                 self.dm_grad_covariance()
             self.dmuptodate = 'True'
-        if (self.dmalpha == None):
+        if (self.dmalpha is None):
             raise RuntimeError("Invalid hyperparameters. Covariance matrix " +
                                "not positive definit")
         # calculate covariance vector kstar
@@ -1590,7 +1590,7 @@ class DGaussianProcess(gp.GaussianProcess):
                 gradprior=None, priorargs=(), thetatrain=None, scale='False',
                 scaletrain=None, grad=None, unpack='False'):
         # train the hyperparameters
-        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or 
+        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True' or
             self.covf.dscaletrain == 'True'):
             self.dm_hypertrain()
         # reconstruct f(x)
@@ -1601,7 +1601,7 @@ class DGaussianProcess(gp.GaussianProcess):
             (d3fmean_mu[i], d3fstd[i]) = self.dm_d3_prediction(self.Xstar[i, :])
         if (self.mu != None):
             for i in range(self.nstar):
-                d3fmean[i] = d3fmean_mu[i] + self.d3mu(self.Xstar[i], 
+                d3fmean[i] = d3fmean_mu[i] + self.d3mu(self.Xstar[i],
                                                        *self.muargs)
         else:
             d3fmean[:] = d3fmean_mu[:]
@@ -1613,7 +1613,7 @@ class DGaussianProcess(gp.GaussianProcess):
                                              reshape(d3fmean, (self.nstar, 1)),
                                              reshape(d3fstd, (self.nstar, 1))),
                                             axis=1)
-        if (self.covf.scale == None and self.covf.dscale == None):
+        if (self.covf.scale is None and self.covf.dscale is None):
             if (unpack == 'False'):
                 return(self.d3reconstruction, self.covf.theta)
             else:

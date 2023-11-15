@@ -31,7 +31,7 @@ import warnings
 
 
 
-def mcmc_log_likelihood(th, sc0, scl, X, Y_mu, Sigma, dX, dY_dmu, dSigma, 
+def mcmc_log_likelihood(th, sc0, scl, X, Y_mu, Sigma, dX, dY_dmu, dSigma,
                         covfunction, prior, priorargs):
     try:
         if (np.min(th) < 0.0):
@@ -42,9 +42,9 @@ def mcmc_log_likelihood(th, sc0, scl, X, Y_mu, Sigma, dX, dY_dmu, dSigma,
         else:
             theta = th[: -scl]
             scale = th[-scl :]
-        g = dgp.DGaussianProcess(X, Y_mu, Sigma, covfunction, theta, 
-                                 dX, dY_dmu, dSigma, 
-                                 prior=prior, priorargs=priorargs, 
+        g = dgp.DGaussianProcess(X, Y_mu, Sigma, covfunction, theta,
+                                 dX, dY_dmu, dSigma,
+                                 prior=prior, priorargs=priorargs,
                                  scale=scale)
         logp = g.log_likelihood()
         return logp
@@ -61,9 +61,9 @@ def recthread(i, th, sc0, scl, X, Y, Sigma, dX, dY, dSigma, covfunction, Xstar,
         else:
             theta = th[:-scl]
             scale = th[-scl:]
-        g = dgp.DGaussianProcess(X, Y, Sigma, covfunction, theta, dX, dY, 
-                                  dSigma, Xstar, mu=mu, dmu=dmu, d2mu=d2mu, 
-                                  d3mu=d3mu, muargs=muargs, thetatrain='False', 
+        g = dgp.DGaussianProcess(X, Y, Sigma, covfunction, theta, dX, dY,
+                                  dSigma, Xstar, mu=mu, dmu=dmu, d2mu=d2mu,
+                                  d3mu=d3mu, muargs=muargs, thetatrain='False',
                                   scale=scale, scaletrain='False')
         nr = 0
         nstar = len(Xstar)
@@ -100,23 +100,23 @@ def recthread(i, th, sc0, scl, X, Y, Sigma, dX, dY, dSigma, covfunction, Xstar,
 def recarray(j, recj, fcovj, k, nsample):
     try:
         if (fcovj != None):
-            rarr = random.multivariate_normal(recj[0, 0, :], 
-                                              fcovj[0, :, :], 
+            rarr = random.multivariate_normal(recj[0, 0, :],
+                                              fcovj[0, :, :],
                                               k[0] * nsample)
             for i in range(1, len(recj)):
-                rs = random.multivariate_normal(recj[i, 0, :], 
-                                                fcovj[i, :, :], 
+                rs = random.multivariate_normal(recj[i, 0, :],
+                                                fcovj[i, :, :],
                                                 k[i] * nsample)
                 rarr = concatenate((rarr, rs))
         else:
             rarr = array([])
             for i in range(len(recj)):
                 if (recj[i, 1, 0] > 0):
-                    rarr = concatenate((rarr, random.normal(recj[i, 0, 0], 
-                                                            recj[i, 1, 0], 
+                    rarr = concatenate((rarr, random.normal(recj[i, 0, 0],
+                                                            recj[i, 1, 0],
                                                             k[i] * nsample)))
                 else:
-                    rarr = concatenate((rarr, recj[i, 0, 0] * 
+                    rarr = concatenate((rarr, recj[i, 0, 0] *
                                         ones(k[i] * nsample)))
 
         return (j, rarr)
@@ -130,8 +130,8 @@ def recarray(j, recj, fcovj, k, nsample):
 class MCMCDGaussianProcess(dgp.DGaussianProcess):
     def __init__(self, X, Y, Sigma, theta0, Niter=100, reclist=[0],
                  covfunction=covariance.SquaredExponential,
-                 dX=None, dY=None, dSigma=None, Xstar=None, cXstar=None, 
-                 mu=None, dmu=None, d2mu=None, d3mu=None, muargs=(), prior=None, 
+                 dX=None, dY=None, dSigma=None, Xstar=None, cXstar=None,
+                 mu=None, dmu=None, d2mu=None, d3mu=None, muargs=(), prior=None,
                  priorargs=(), scale0=None, a=2.0, threads=1, nacor=10,
                  nsample=50, sampling='True'):
 
@@ -141,13 +141,13 @@ class MCMCDGaussianProcess(dgp.DGaussianProcess):
             self.sc0 = True
             scale = scale0[0]
             self.scl = len(scale)
-            if (self.scl == 2 and dX == None):
+            if (self.scl == 2 and dX is None):
                 scale0 = scale0[:, 0]
                 scale = scale0[0]
                 self.scl = 1
                 warnings.warn("scale0 is two-dimensional, but dX=None. " +
                               "Second dimension of scale0 will be ignored.")
-            self.pos = concatenate((theta0, reshape(scale0, (len(scale0), self.scl))), 
+            self.pos = concatenate((theta0, reshape(scale0, (len(scale0), self.scl))),
                                    axis=1)
         else:
             self.pos = theta0
@@ -155,11 +155,11 @@ class MCMCDGaussianProcess(dgp.DGaussianProcess):
             scale = None
             self.scl = None
 
-        dgp.DGaussianProcess.__init__(self, X, Y, Sigma, covfunction, 
-                                      theta0[0,:], dX, dY, dSigma, Xstar, cXstar, 
+        dgp.DGaussianProcess.__init__(self, X, Y, Sigma, covfunction,
+                                      theta0[0,:], dX, dY, dSigma, Xstar, cXstar,
                                       mu, dmu, d2mu, d3mu, muargs,
                                       prior, gradprior=None, priorargs=priorargs,
-                                      thetatrain='False', scale=scale, 
+                                      thetatrain='False', scale=scale,
                                       scaletrain='False')
 
         self.theta0 = theta0
@@ -188,10 +188,10 @@ class MCMCDGaussianProcess(dgp.DGaussianProcess):
                 print("acor can be installed from http://github.com/dfm/acor")
                 raise SystemExit
 
-            self.sampler = emcee.EnsembleSampler(self.nwalkers, self.ndim, 
-                                                 mcmc_log_likelihood, 
-                                                 args=(self.sc0, self.scl, self.X, 
-                                                       self.Y_mu, self.Sigma, 
+            self.sampler = emcee.EnsembleSampler(self.nwalkers, self.ndim,
+                                                 mcmc_log_likelihood,
+                                                 args=(self.sc0, self.scl, self.X,
+                                                       self.Y_mu, self.Sigma,
                                                        self.dX, self.dY_dmu,
                                                        self.dSigma, covfunction,
                                                        prior, priorargs),
@@ -226,10 +226,10 @@ class MCMCDGaussianProcess(dgp.DGaussianProcess):
         print("burn-in finished")
         print("number of burn-in steps: " + str(shape(self.sampler.chain)[1]))
         print("autocorrelation time: " + str(maxa))
-        print("acceptance fraction: " + 
+        print("acceptance fraction: " +
               str(np.mean(self.sampler.acceptance_fraction)))
         self.sampler.reset()
-        (pos, prob, state) = self.sampler.run_mcmc(pos, self.Niter, 
+        (pos, prob, state) = self.sampler.run_mcmc(pos, self.Niter,
                                                    rstate0=state)
         self.possample = self.sampler.flatchain
         if (self.sc0 == False):
@@ -333,12 +333,12 @@ class MCMCDGaussianProcess(dgp.DGaussianProcess):
         reconstrarr = zeros((self.nstar, len(self.possample) * self.nsample, nrl))
         for j in range(self.nstar):
             if (nrl > 1):
-                rarr = random.multivariate_normal(rec[0, j, 0, :], 
-                                                  fcov[0, j, :, :], 
+                rarr = random.multivariate_normal(rec[0, j, 0, :],
+                                                  fcov[0, j, :, :],
                                                   k[0] * self.nsample)
                 for i in range(1, len(rec)):
-                    rs = random.multivariate_normal(rec[i, j, 0, :], 
-                                                    fcov[i, j, :, :], 
+                    rs = random.multivariate_normal(rec[i, j, 0, :],
+                                                    fcov[i, j, :, :],
                                                     k[i] * self.nsample)
                     rarr = concatenate((rarr, rs))
                 reconstrarr[j, :, :] = rarr[:, :]
@@ -346,12 +346,12 @@ class MCMCDGaussianProcess(dgp.DGaussianProcess):
                 rarr = array([])
                 for i in range(len(rec)):
                     if (rec[i, j, 1, 0] > 0):
-                        rarr = concatenate((rarr, random.normal(rec[i, j, 0, 0], 
-                                                                rec[i, j, 1, 0], 
-                                                                k[i] * 
+                        rarr = concatenate((rarr, random.normal(rec[i, j, 0, 0],
+                                                                rec[i, j, 1, 0],
+                                                                k[i] *
                                                                 self.nsample)))
                     else:
-                        rarr = concatenate((rarr, rec[i, j, 0, 0] * 
+                        rarr = concatenate((rarr, rec[i, j, 0, 0] *
                                             ones(k[i] * self.nsample)))
                 reconstrarr[j, :, 0] = rarr[:]
         return reconstrarr
@@ -361,13 +361,13 @@ class MCMCDGaussianProcess(dgp.DGaussianProcess):
 
     def parallelrec(self, redpossample, k):
         pool = multiprocessing.Pool(processes=self.threads)
-        recres = [pool.apply_async(recthread, (i, redpossample[i, :], self.sc0, 
-                                               self.scl, self.X, self.Y, 
-                                               self.Sigma, self.dX, self.dY, 
-                                               self.dSigma, self.covfunction, 
-                                               self.Xstar, self.mu,  self.dmu, 
-                                               self.d2mu, self.d3mu, 
-                                               self.muargs, self.reclist)) 
+        recres = [pool.apply_async(recthread, (i, redpossample[i, :], self.sc0,
+                                               self.scl, self.X, self.Y,
+                                               self.Sigma, self.dX, self.dY,
+                                               self.dSigma, self.covfunction,
+                                               self.Xstar, self.mu,  self.dmu,
+                                               self.d2mu, self.d3mu,
+                                               self.muargs, self.reclist))
                   for i in range(len(redpossample))]
         nrl = len(self.reclist)
         rec = zeros((len(redpossample), self.nstar, 2, nrl))
@@ -381,17 +381,17 @@ class MCMCDGaussianProcess(dgp.DGaussianProcess):
             for r in recres:
                 a = r.get()
                 rec[a[0], :, :, :] = a[1]
-        reconstrarr = zeros((self.nstar, len(self.possample) * self.nsample, 
+        reconstrarr = zeros((self.nstar, len(self.possample) * self.nsample,
                             nrl))
         if (nrl > 1):
-            recon = [pool.apply_async(recarray, (j, rec[:, j, :, :], 
-                                                 fcov[:, j, :, :], 
-                                                 k, self.nsample)) 
+            recon = [pool.apply_async(recarray, (j, rec[:, j, :, :],
+                                                 fcov[:, j, :, :],
+                                                 k, self.nsample))
                      for j in range(self.nstar)]
         else:
-            recon = [pool.apply_async(recarray, (j, rec[:, j, :, :], 
-                                                 None, 
-                                                 k, self.nsample)) 
+            recon = [pool.apply_async(recarray, (j, rec[:, j, :, :],
+                                                 None,
+                                                 k, self.nsample))
                      for j in range(self.nstar)]
         if (nrl > 1):
             for r in recon:

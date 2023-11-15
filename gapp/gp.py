@@ -78,7 +78,7 @@ class GaussianProcess(object):
         except:
             self.covnumber = 1
         if(self.covnumber == 1):
-            if (theta == None):
+            if (theta is None):
                 # theta determined automatically
                 self.covf = covfunction(theta, X, Y)
             else:
@@ -189,7 +189,7 @@ class GaussianProcess(object):
 
     # set an a priori mean function
     def set_mu(self, mu, muargs=()):
-        if (mu == None):
+        if (mu is None):
             self.mu = None
             self.Y_mu = self.Y[:]
             self.muargs = ()
@@ -224,7 +224,7 @@ class GaussianProcess(object):
         except TypeError:
             priorargs = (priorargs,)
         self.priorargs = priorargs
-        if (gradprior == None):
+        if (gradprior is None):
             self.gradprior = None
         elif (len(gradprior(self.covf.initheta)) == len(self.covf.initheta)):
             self.gradprior = gradprior
@@ -249,7 +249,7 @@ class GaussianProcess(object):
     def set_scale(self, scale):
         self.uptodate = 'False'
         self.dmuptodate = 'False'
-        if (scale == None):
+        if (scale is None):
             self.scale = None
             self.covf.scale = None
             self.covf.iniscale = None
@@ -273,23 +273,23 @@ class GaussianProcess(object):
     # define which values of scale are to be trained
     def set_scaletrain(self, scaletrain):
         if (scaletrain in ['True', 'False']):
-            if (self.covf.scale == None):
+            if (self.covf.scale is None):
                 self.covf.scaletrain = 'False'
             else:
                 self.covf.scaletrain = scaletrain
-            if (self.covf.dscale == None):
+            if (self.covf.dscale is None):
                 self.covf.dscaletrain = 'False'
             else:
                 self.covf.dscaletrain = scaletrain
         elif (len(scaletrain) == 2):
-            if (self.covf.scale == None):
+            if (self.covf.scale is None):
                 self.covf.scaletrain = 'False'
             else:
                 if (scaletrain[0] == 0):
                     self.covf.scaletrain = 'False'
                 else:
                     self.covf.scaletrain = 'True'
-            if (self.covf.dscale == None):
+            if (self.covf.dscale is None):
                 self.covf.dscaletrain = 'False'
             else:
                 if (scaletrain[1] == 0):
@@ -369,9 +369,9 @@ class GaussianProcess(object):
         xmi = np.min(self.X, axis=0)
         xma = np.max(self.X, axis=0)
         diff = xma - xmi
-        if (xmin == None):
+        if (xmin is None):
             xmin = xmi - diff/10.
-        if (xmax == None):
+        if (xmax is None):
             xmax = xma + diff/10.
         if (shape(self.X) in [(self.n, ), (self.n, 1)]):
             self.create_Xstar(xmin, xmax, nstar)
@@ -434,7 +434,7 @@ class GaussianProcess(object):
     def alpha_L(self):
         A = array(self.K)
         self.A = A
-        if (self.scale == None):
+        if (self.scale is None):
             A[:, :] = self.K[:, :] + self.Sigma[:, :]
         else:
             A[:, :] = self.K[:, :] + self.scale**2 * self.Sigma[:, :]
@@ -539,7 +539,7 @@ class GaussianProcess(object):
         gradpriorlogp = zeros(nh)
         if (self.gradprior != None):
             gradpriorp = self.gradprior(self.covf.theta, *self.priorargs)
-            if (self.prior == None):
+            if (self.prior is None):
                 warnings.warn('no prior given in gp.grad_nlog_likelihood;'
                               + ' gradprior will be ignored')
             else:
@@ -596,7 +596,7 @@ class GaussianProcess(object):
         if (thetatrain != None):
             self.set_thetatrain(thetatrain)
         if (scale != 'False'):
-            if (scaletrain == None):
+            if (scaletrain is None):
                 scaletrain = 'True'
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
@@ -613,7 +613,7 @@ class GaussianProcess(object):
         # train the hyperparameters
         initheta = self.covf.theta
         if (self.grad == 'True'):
-            if (self.prior != None and self.gradprior == None):
+            if (self.prior != None and self.gradprior is None):
                 raise RuntimeError("no gradprior given in " +
                                    "grad_nlog_likelihood \n" +
                                    "Possible solutions: \n" +
@@ -835,7 +835,7 @@ class GaussianProcess(object):
         if (thetatrain != None):
             self.set_thetatrain(thetatrain)
         if (scale != 'False'):
-            if (scaletrain == None):
+            if (scaletrain is None):
                 scaletrain = 'True'
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
@@ -871,7 +871,7 @@ class GaussianProcess(object):
                                            reshape(fmean, (self.nstar, 1)),
                                            reshape(fstd, (self.nstar, 1))),
                                           axis=1)
-        if (self.scale == None):
+        if (self.scale is None):
             if (unpack == 'False'):
                 return(self.reconstruction, self.covf.theta)
             else:
