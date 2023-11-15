@@ -23,8 +23,6 @@
 """
 
 
-
-
 from . import cov
 import numpy as np
 from numpy import array, exp, insert, reshape, sqrt, zeros
@@ -34,25 +32,34 @@ import warnings
 class MultiDMatern92(cov.CovarianceFunction):
     # initialize class with initial hyperparameter theta
     def __init__(self, theta, X=None, Y=None):
-        if (theta is None):
+        if theta is None:
             # automatically provide initial theta if none is given
-            sigmaf = (max(Y) - min(Y))/2.0
-            l = array((np.max(X, axis=0) - np.min(X, axis=0))/2.0)
+            sigmaf = (max(Y) - min(Y)) / 2.0
+            l = array((np.max(X, axis=0) - np.min(X, axis=0)) / 2.0)
             theta = insert(l, 0, sigmaf)
         cov.CovarianceFunction.__init__(self, theta)
-        if (np.min(self.theta) <= 0.0):
-            warnings.warn("Illegal hyperparameters in the" +
-                          " initialization of MultiDMatern92.")
-
+        if np.min(self.theta) <= 0.0:
+            warnings.warn(
+                "Illegal hyperparameters in the" + " initialization of MultiDMatern92."
+            )
 
     # definition of the matern92 covariance function
     def covfunc(self):
         sigmaf = self.theta[0]
         l = self.theta[1:]
-        rl = sqrt(np.sum(((self.x1 - self.x2)/l)**2))
+        rl = sqrt(np.sum(((self.x1 - self.x2) / l) ** 2))
         erl = exp(-3.0 * rl)
-        covariance = sigmaf**2 * (1 + 3.0 * rl + 27./7. * rl**2 +
-                                  18./7. * rl**3 + 27./35. * rl**4) * erl
+        covariance = (
+            sigmaf**2
+            * (
+                1
+                + 3.0 * rl
+                + 27.0 / 7.0 * rl**2
+                + 18.0 / 7.0 * rl**3
+                + 27.0 / 35.0 * rl**4
+            )
+            * erl
+        )
         return covariance
 
     # gradient of the matern92 with respect to the hyperparameters
@@ -62,70 +69,107 @@ class MultiDMatern92(cov.CovarianceFunction):
         l = self.theta[1:]
         grad = zeros(len(self.theta))
         r = self.x1 - self.x2
-        rl = sqrt(np.sum((r/l)**2))
+        rl = sqrt(np.sum((r / l) ** 2))
         erl = exp(-3.0 * rl)
-        dk_dsigmaf = float(2 * sigmaf * (1 + 3.0 * rl + 27./7. * rl**2 +
-                                  18./7. * rl**3 + 27./35. * rl**4) * erl)
+        dk_dsigmaf = float(
+            2
+            * sigmaf
+            * (
+                1
+                + 3.0 * rl
+                + 27.0 / 7.0 * rl**2
+                + 18.0 / 7.0 * rl**3
+                + 27.0 / 35.0 * rl**4
+            )
+            * erl
+        )
         grad[0] = dk_dsigmaf
-        grad[1:] = 9./35. * sigmaf**2 * r[:]**2/l[:]**3 * erl * \
-                      (5. + 15. * rl + 18. * rl**2 + 9. * rl**3)
+        grad[1:] = (
+            9.0
+            / 35.0
+            * sigmaf**2
+            * r[:] ** 2
+            / l[:] ** 3
+            * erl
+            * (5.0 + 15.0 * rl + 18.0 * rl**2 + 9.0 * rl**3)
+        )
         return grad
 
     # derivative of the matern92 with respect to x2
     def dcovfunc(self):
-        raise RuntimeError("Derivative calculations are only implemented" +
-                           " for 1-dimensional inputs x.")
+        raise RuntimeError(
+            "Derivative calculations are only implemented"
+            + " for 1-dimensional inputs x."
+        )
 
     # derivative of the matern92 with respect to x1 and x2
     # dk/(dx1 dx2)
     def ddcovfunc(self):
-        raise RuntimeError("Derivative calculations are only implemented" +
-                           " for 1-dimensional inputs x.")
+        raise RuntimeError(
+            "Derivative calculations are only implemented"
+            + " for 1-dimensional inputs x."
+        )
 
     # second derivative of the matern92 with respect to x2
     def d2covfunc(self):
-        raise RuntimeError("Derivative calculations are only implemented" +
-                           " for 1-dimensional inputs x.")
+        raise RuntimeError(
+            "Derivative calculations are only implemented"
+            + " for 1-dimensional inputs x."
+        )
 
     # second derivative of the matern92 with respect to x1 and x2
     # d^4k/(dx1^2 dx2^2)
     def d2d2covfunc(self):
-        raise RuntimeError("Derivative calculations are only implemented" +
-                           " for 1-dimensional inputs x.")
+        raise RuntimeError(
+            "Derivative calculations are only implemented"
+            + " for 1-dimensional inputs x."
+        )
 
     # d^5/(dx1^2 dx2^3)
     def d2d3covfunc(self):
-        raise RuntimeError("Derivative calculations are only implemented" +
-                           " for 1-dimensional inputs x.")
+        raise RuntimeError(
+            "Derivative calculations are only implemented"
+            + " for 1-dimensional inputs x."
+        )
 
     # d^3k/(dx1 dx2^2)
     def dd2covfunc(self):
-        raise RuntimeError("Derivative calculations are only implemented" +
-                           " for 1-dimensional inputs x.")
+        raise RuntimeError(
+            "Derivative calculations are only implemented"
+            + " for 1-dimensional inputs x."
+        )
 
     # d^3k/dx2^3
     def d3covfunc(self):
-        raise RuntimeError("Derivative calculations are only implemented" +
-                           " for 1-dimensional inputs x.")
+        raise RuntimeError(
+            "Derivative calculations are only implemented"
+            + " for 1-dimensional inputs x."
+        )
 
     # d^6k/dx1^3dx2^3
     def d3d3covfunc(self):
-        raise RuntimeError("Derivative calculations are only implemented" +
-                           " for 1-dimensional inputs x.")
+        raise RuntimeError(
+            "Derivative calculations are only implemented"
+            + " for 1-dimensional inputs x."
+        )
 
     # d^4k/dx1dx2^3
     def dd3covfunc(self):
-        raise RuntimeError("Derivative calculations are only implemented" +
-                           " for 1-dimensional inputs x.")
+        raise RuntimeError(
+            "Derivative calculations are only implemented"
+            + " for 1-dimensional inputs x."
+        )
 
     # derivative of the gradient of the matern92 with respect to x2
     def dgradcovfunc(self):
-        raise RuntimeError("Derivative calculations are only implemented" +
-                           " for 1-dimensional inputs x.")
+        raise RuntimeError(
+            "Derivative calculations are only implemented"
+            + " for 1-dimensional inputs x."
+        )
 
     # derivative of the gradient of the matern92 with respect to x1 and x2
     def ddgradcovfunc(self):
-        raise RuntimeError("Derivative calculations are only implemented" +
-                           " for 1-dimensional inputs x.")
-
-
+        raise RuntimeError(
+            "Derivative calculations are only implemented"
+            + " for 1-dimensional inputs x."
+        )

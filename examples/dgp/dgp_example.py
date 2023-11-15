@@ -8,12 +8,11 @@ from gapp import dgp
 from numpy import loadtxt, savetxt
 
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
     # load the data from inputdata.txt
-    (X, Y, Sigma) = loadtxt("../inputdata.txt", unpack='True')
-    
-    # nstar points of the function will be reconstructed 
+    (X, Y, Sigma) = loadtxt("../inputdata.txt", unpack="True")
+
+    # nstar points of the function will be reconstructed
     # between xmin and xmax
     xmin = 0.0
     xmax = 10.0
@@ -30,7 +29,7 @@ if __name__=="__main__":
 
     # reconstruction of the first, second and third derivatives.
     # theta is fixed to the previously determined value.
-    (drec, theta) = g.dgp(thetatrain='False')
+    (drec, theta) = g.dgp(thetatrain="False")
     (d2rec, theta) = g.d2gp()
     (d3rec, theta) = g.d3gp()
 
@@ -40,7 +39,6 @@ if __name__=="__main__":
     savetxt("d2f.txt", d2rec)
     savetxt("d3f.txt", d3rec)
 
-
     # test if matplotlib is installed
     try:
         import matplotlib.pyplot
@@ -49,5 +47,5 @@ if __name__=="__main__":
         exit
     # create plot
     import plot
-    plot.plot(X, Y, Sigma, rec, drec, d2rec, d3rec)
 
+    plot.plot(X, Y, Sigma, rec, drec, d2rec, d3rec)

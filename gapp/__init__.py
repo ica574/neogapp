@@ -1,1 +1,1 @@
-__all__ = ["covariance", "dgp", "gp", "mcmcgp",  "mcmcdgp","covfunctions"]
+__all__ = ["covariance", "dgp", "gp", "mcmcgp", "mcmcdgp", "covfunctions"]

@@ -23,8 +23,6 @@
 """
 
 
-
-
 """
 
 Attributes of GaussianProcess:
@@ -60,61 +58,99 @@ reconstruction Array containing Xstar, fmean and fstd
 
 from . import covariance
 import numpy as np
-from numpy import append, array, concatenate, diagonal, dot, eye, exp, \
-    flatnonzero, loadtxt, log, mean, ones, pi, reshape, resize, shape, sign, \
-    sqrt, std, take, trace, transpose, zeros, linalg
+from numpy import (
+    append,
+    array,
+    concatenate,
+    diagonal,
+    dot,
+    eye,
+    exp,
+    flatnonzero,
+    loadtxt,
+    log,
+    mean,
+    ones,
+    pi,
+    reshape,
+    resize,
+    shape,
+    sign,
+    sqrt,
+    std,
+    take,
+    trace,
+    transpose,
+    zeros,
+    linalg,
+)
 import scipy.optimize as opt
 import warnings
 
 
 class GaussianProcess(object):
-    def __init__(self, X, Y, Sigma, covfunction=covariance.SquaredExponential,
-                 theta=None, Xstar=None, cXstar=None, mu=None, muargs=(),
-                 prior=None, gradprior=None, priorargs=(), thetatrain='True',
-                 scale=None, scaletrain='True', grad='True'):
+    def __init__(
+        self,
+        X,
+        Y,
+        Sigma,
+        covfunction=covariance.SquaredExponential,
+        theta=None,
+        Xstar=None,
+        cXstar=None,
+        mu=None,
+        muargs=(),
+        prior=None,
+        gradprior=None,
+        priorargs=(),
+        thetatrain="True",
+        scale=None,
+        scaletrain="True",
+        grad="True",
+    ):
         # covariance function
         try:
             self.covnumber = len(covfunction)
         except:
             self.covnumber = 1
-        if(self.covnumber == 1):
-            if (theta is None):
+        if self.covnumber == 1:
+            if theta is None:
                 # theta determined automatically
                 self.covf = covfunction(theta, X, Y)
             else:
                 self.covf = covfunction(theta)
-        elif(self.covnumber == 2):
-            self.covf = covariance.DoubleCovariance(covfunction[0],
-                                                    covfunction[1], theta,
-                                                    X, Y)
+        elif self.covnumber == 2:
+            self.covf = covariance.DoubleCovariance(
+                covfunction[0], covfunction[1], theta, X, Y
+            )
         else:
             raise AssertionError("Number of covariance functions is not supported.")
 
         # observational data
         self.set_data(X, Y, Sigma)
         # vector (or matrix) of the locations where f(x) is to be reconstructed
-        if (Xstar != None):
+        if Xstar != None:
             self.set_Xstar(Xstar)
-            if (cXstar != None):
-                warnings.warn("Xstar and cXstar given in the " +
-                              "initialization of GaussianProcess. \n" +
-                              "cXstar will be ignored.")
-        elif (cXstar != None):
+            if cXstar != None:
+                warnings.warn(
+                    "Xstar and cXstar given in the "
+                    + "initialization of GaussianProcess. \n"
+                    + "cXstar will be ignored."
+                )
+        elif cXstar != None:
             # create Xstar with cXstar = (xmin,xmax,nstar)
             xmin = cXstar[0]
             xmax = cXstar[1]
             nstar = cXstar[2]
             d = len(self.X[0, :])
-            assert (shape(xmin) in [(), (1, ), (d, )]), \
-                "xmin does not fit shape of X."
-            assert (shape(xmax) in [(), (1, ), (d, )]), \
-                "xmax does not fit shape of X."
-            if(d > 1):
-                if(xmin != None and shape(xmin) in [(), (1, )]):
+            assert shape(xmin) in [(), (1,), (d,)], "xmin does not fit shape of X."
+            assert shape(xmax) in [(), (1,), (d,)], "xmax does not fit shape of X."
+            if d > 1:
+                if xmin != None and shape(xmin) in [(), (1,)]:
                     xmin = xmin * ones(d)
-                if(xmax != None and shape(xmax) in [(), (1, )]):
+                if xmax != None and shape(xmax) in [(), (1,)]:
                     xmax = xmax * ones(d)
-            if (xmin is None or xmax is None):
+            if xmin is None or xmax is None:
                 self.auto_create_Xstar(xmin, xmax, nstar)
             else:
                 self.create_Xstar(xmin, xmax, nstar)
@@ -137,22 +173,23 @@ class GaussianProcess(object):
     # set observational data
     def set_data(self, X, Y, Sigma):
         n = len(X)
-        assert (len(Y) == n and len(Sigma) == n), \
-            "X, Y and Sigma must have the same length."
-        if(shape(X) == (n,)):
+        assert (
+            len(Y) == n and len(Sigma) == n
+        ), "X, Y and Sigma must have the same length."
+        if shape(X) == (n,):
             X = reshape(X, (n, 1))
-        if(shape(X) == (n, 1)):
+        if shape(X) == (n, 1):
             # 1-dimensional data
-            self.covf.multiD = 'False'
+            self.covf.multiD = "False"
         else:
             # multi-dimensional data
-            self.covf.multiD = 'True'
+            self.covf.multiD = "True"
         self.X = array(X)
         self.Y = array(Y)
-        if (shape(Sigma) == (n, n)):
+        if shape(Sigma) == (n, n):
             # data covariance matrix
             self.Sigma = array(Sigma)
-        elif (shape(Sigma) in [(n,), (n, 1)]):
+        elif shape(Sigma) in [(n,), (n, 1)]:
             # turn vector into diagonal covariance matrix
             self.Sigma = Sigma * eye(n) * Sigma
         else:
@@ -160,36 +197,33 @@ class GaussianProcess(object):
         # number of data points
         self.n = n
         try:
-            if (self.dmu != None):
+            if self.dmu != None:
                 self.subtract_dmu()
         except AttributeError:
             pass
-        self.uptodate = 'False'
-        self.dmuptodate = 'False'
-
-
-
+        self.uptodate = "False"
+        self.dmuptodate = "False"
 
     # set hyperparameter theta
     def set_theta(self, theta):
         self.covf.theta = array(theta)
-        self.uptodate = 'False'
-        self.dmuptodate = 'False'
-        if(self.covnumber == 2):
-            self.covf.covf1.theta = theta[:self.covf.lth1]
-            self.covf.covf2.theta = theta[self.covf.lth1:]
+        self.uptodate = "False"
+        self.dmuptodate = "False"
+        if self.covnumber == 2:
+            self.covf.covf1.theta = theta[: self.covf.lth1]
+            self.covf.covf2.theta = theta[self.covf.lth1 :]
 
     # subtract the a priori mean from the data
     def subtract_mu(self):
         self.Y_mu = zeros(self.n)
         for i in range(self.n):
             self.Y_mu[i] = self.Y[i] - self.mu(self.X[i], *self.muargs)
-        self.uptodate = 'False'
-        self.dmuptodate = 'False'
+        self.uptodate = "False"
+        self.dmuptodate = "False"
 
     # set an a priori mean function
     def set_mu(self, mu, muargs=()):
-        if (mu is None):
+        if mu is None:
             self.mu = None
             self.Y_mu = self.Y[:]
             self.muargs = ()
@@ -201,8 +235,8 @@ class GaussianProcess(object):
                 muargs = (muargs,)
             self.muargs = muargs
             self.subtract_mu()
-        self.uptodate = 'False'
-        self.dmuptodate = 'False'
+        self.uptodate = "False"
+        self.dmuptodate = "False"
 
     # unset the a priori mean function
     def unset_mu(self):
@@ -213,8 +247,8 @@ class GaussianProcess(object):
         self.Y_mu = self.Y[:]
         self.dY_dmu = self.dY[:]
         self.muargs = ()
-        self.uptodate = 'False'
-        self.dmuptodate = 'False'
+        self.uptodate = "False"
+        self.dmuptodate = "False"
 
     # set prior for the hyperparameters
     def set_prior(self, prior, gradprior=None, priorargs=()):
@@ -224,45 +258,47 @@ class GaussianProcess(object):
         except TypeError:
             priorargs = (priorargs,)
         self.priorargs = priorargs
-        if (gradprior is None):
+        if gradprior is None:
             self.gradprior = None
-        elif (len(gradprior(self.covf.initheta)) == len(self.covf.initheta)):
+        elif len(gradprior(self.covf.initheta)) == len(self.covf.initheta):
             self.gradprior = gradprior
         else:
-            warnings.warn("Wrong data type in gradprior. \n" +
-                          "gradprior(theta) must return array of " +
-                          "length theta. \n" +
-                          "gradprior will be ignored.")
+            warnings.warn(
+                "Wrong data type in gradprior. \n"
+                + "gradprior(theta) must return array of "
+                + "length theta. \n"
+                + "gradprior will be ignored."
+            )
             self.gradprior = None
-        self.uptodate = 'False'
-        self.dmuptodate = 'False'
+        self.uptodate = "False"
+        self.dmuptodate = "False"
 
     # unset prior for the hyperparameters
     def unset_prior(self):
         self.prior = None
         self.priorargs = ()
         self.gradprior = None
-        self.uptodate = 'False'
-        self.dmuptodate = 'False'
+        self.uptodate = "False"
+        self.dmuptodate = "False"
 
     # set scale of the measurement errors
     def set_scale(self, scale):
-        self.uptodate = 'False'
-        self.dmuptodate = 'False'
-        if (scale is None):
+        self.uptodate = "False"
+        self.dmuptodate = "False"
+        if scale is None:
             self.scale = None
             self.covf.scale = None
             self.covf.iniscale = None
             self.covf.dscale = None
             self.covf.inidscale = None
-            self.set_scaletrain('False')
-        elif (len(array([scale])) == 1):
+            self.set_scaletrain("False")
+        elif len(array([scale])) == 1:
             self.scale = scale
             self.covf.scale = scale
             self.covf.iniscale = scale
             self.covf.dscale = None
             self.covf.inidscale = None
-        elif(len(scale) == 2):
+        elif len(scale) == 2:
             self.scale = scale[0]
             self.covf.scale = scale[0]
             self.covf.iniscale = scale[0]
@@ -272,32 +308,30 @@ class GaussianProcess(object):
 
     # define which values of scale are to be trained
     def set_scaletrain(self, scaletrain):
-        if (scaletrain in ['True', 'False']):
-            if (self.covf.scale is None):
-                self.covf.scaletrain = 'False'
+        if scaletrain in ["True", "False"]:
+            if self.covf.scale is None:
+                self.covf.scaletrain = "False"
             else:
                 self.covf.scaletrain = scaletrain
-            if (self.covf.dscale is None):
-                self.covf.dscaletrain = 'False'
+            if self.covf.dscale is None:
+                self.covf.dscaletrain = "False"
             else:
                 self.covf.dscaletrain = scaletrain
-        elif (len(scaletrain) == 2):
-            if (self.covf.scale is None):
-                self.covf.scaletrain = 'False'
+        elif len(scaletrain) == 2:
+            if self.covf.scale is None:
+                self.covf.scaletrain = "False"
             else:
-                if (scaletrain[0] == 0):
-                    self.covf.scaletrain = 'False'
+                if scaletrain[0] == 0:
+                    self.covf.scaletrain = "False"
                 else:
-                    self.covf.scaletrain = 'True'
-            if (self.covf.dscale is None):
-                self.covf.dscaletrain = 'False'
+                    self.covf.scaletrain = "True"
+            if self.covf.dscale is None:
+                self.covf.dscaletrain = "False"
             else:
-                if (scaletrain[1] == 0):
-                    self.covf.dscaletrain = 'False'
+                if scaletrain[1] == 0:
+                    self.covf.dscaletrain = "False"
                 else:
-                    self.covf.dscaletrain = 'True'
-
-
+                    self.covf.dscaletrain = "True"
 
     # unset scale of the measurement errors
     def unset_scale(self):
@@ -306,57 +340,55 @@ class GaussianProcess(object):
         self.covf.iniscale = None
         self.covf.dscale = None
         self.covf.inidscale = None
-        self.set_scaletrain('False')
-        self.uptodate = 'False'
-        self.dmuptodate = 'False'
+        self.set_scaletrain("False")
+        self.uptodate = "False"
+        self.dmuptodate = "False"
 
     # set which of the hyperparameters are to be trained
     def set_thetatrain(self, thetatrain):
-        if (thetatrain in ['False', 'True']):
+        if thetatrain in ["False", "True"]:
             self.thetatrain = thetatrain
-        elif (len(thetatrain) == len(self.covf.theta)):
-            if (np.all(thetatrain)):
-                self.thetatrain = 'True'
-            elif (np.any(thetatrain) == False):
-                self.thetatrain = 'False'
+        elif len(thetatrain) == len(self.covf.theta):
+            if np.all(thetatrain):
+                self.thetatrain = "True"
+            elif np.any(thetatrain) == False:
+                self.thetatrain = "False"
             else:
                 self.thetatrain = array(thetatrain)
         else:
             raise TypeError("Wrong data type in thetatrain.")
 
     # gradient of the covariance function will be used for the GP
-    def set_grad(self, grad='True'):
+    def set_grad(self, grad="True"):
         self.grad = grad
-        self.uptodate = 'False'
-        self.dmuptodate = 'False'
+        self.uptodate = "False"
+        self.dmuptodate = "False"
 
     # gradient of the covariance function will not be used for the GP
     def unset_grad(self):
-        self.grad = 'False'
-        self.dmuptodate = 'False'
-
+        self.grad = "False"
+        self.dmuptodate = "False"
 
     # set Xstar
     def set_Xstar(self, Xstar):
-        if (shape(Xstar) == ()):
+        if shape(Xstar) == ():
             Xstar = reshape(Xstar, (1, 1))
         nstar = len(Xstar)
-        if(shape(Xstar) == (len(Xstar),)):
+        if shape(Xstar) == (len(Xstar),):
             Xstar = reshape(Xstar, (nstar, 1))
         self.Xstar = Xstar
         self.nstar = nstar
 
-
     # create vector Xstar with nstar values between xmin and xmax
     def create_Xstar(self, xmin, xmax, nstar):
-        if (xmin is None or xmax is None):
+        if xmin is None or xmax is None:
             self.auto_create_Xstar(xmin, xmax, nstar)
         else:
-            if (shape(xmin) in [(), (1, ), (1, 1)]):
+            if shape(xmin) in [(), (1,), (1, 1)]:
                 Xstar = zeros(nstar)
                 self.nstar = nstar
                 for i in range(nstar):
-                    Xstar[i] = xmin + i * (xmax - xmin)/float(nstar - 1)
+                    Xstar[i] = xmin + i * (xmax - xmin) / float(nstar - 1)
                 self.Xstar = reshape(Xstar, (nstar, 1))
             else:
                 Nstar = nstar * ones((len(xmin)), dtype=int)
@@ -369,11 +401,11 @@ class GaussianProcess(object):
         xmi = np.min(self.X, axis=0)
         xma = np.max(self.X, axis=0)
         diff = xma - xmi
-        if (xmin is None):
-            xmin = xmi - diff/10.
-        if (xmax is None):
-            xmax = xma + diff/10.
-        if (shape(self.X) in [(self.n, ), (self.n, 1)]):
+        if xmin is None:
+            xmin = xmi - diff / 10.0
+        if xmax is None:
+            xmax = xma + diff / 10.0
+        if shape(self.X) in [(self.n,), (self.n, 1)]:
             self.create_Xstar(xmin, xmax, nstar)
         else:
             Nstar = nstar * ones((len(xmin)), dtype=np.int)
@@ -385,25 +417,27 @@ class GaussianProcess(object):
         self.nstar = np.prod(Nstar)
         Xstar = zeros((self.nstar, D))
         self.k = 0
+
         def xsloop(d):
             for i in range(Nstar[d]):
-                ul = self.k + int(np.prod(Nstar[d+1:D]))
-                Xstar[self.k:ul, d] = xmin[d] + \
-                    i * (xmax[d] - xmin[d])/float(Nstar[d] - 1)
-                if ((d + 1) < D):
+                ul = self.k + int(np.prod(Nstar[d + 1 : D]))
+                Xstar[self.k : ul, d] = xmin[d] + i * (xmax[d] - xmin[d]) / float(
+                    Nstar[d] - 1
+                )
+                if (d + 1) < D:
                     xsloop(d + 1)
                 else:
                     self.k += 1
+
         xsloop(0)
         self.Xstar = Xstar
-
 
     # calculate covariance matrix of the inputs
     def input_covariance(self):
         K = zeros((self.n, self.n))
         for i in range(self.n):
             for j in range(self.n):
-                if (j >= i):
+                if j >= i:
                     self.covf.x1 = self.X[i, :]
                     self.covf.x2 = self.X[j, :]
                     K[i, j] = self.covf.covfunc()
@@ -416,17 +450,17 @@ class GaussianProcess(object):
         gradK = zeros((len(self.covf.theta), self.n, self.n))
         for i in range(self.n):
             for j in range(self.n):
-                if (j >= i):
+                if j >= i:
                     self.covf.x1 = self.X[i, :]
                     self.covf.x2 = self.X[j, :]
                     gradK[:, i, j] = self.covf.gradcovfunc()
                 else:
                     gradK[:, i, j] = gradK[:, j, i]
-        if (self.covf.scaletrain == 'True'):
+        if self.covf.scaletrain == "True":
             gradscale = zeros((1, self.n, self.n))
             for i in range(self.n):
                 gradscale[0, i, i] = 2 * self.scale * self.Sigma[i, i]
-            gradK = concatenate((gradK,gradscale))
+            gradK = concatenate((gradK, gradscale))
         self.gradK = gradK
 
     # calculates alpha = (K + sigma)^{-1}Y_mu
@@ -434,7 +468,7 @@ class GaussianProcess(object):
     def alpha_L(self):
         A = array(self.K)
         self.A = A
-        if (self.scale is None):
+        if self.scale is None:
             A[:, :] = self.K[:, :] + self.Sigma[:, :]
         else:
             A[:, :] = self.K[:, :] + self.scale**2 * self.Sigma[:, :]
@@ -459,65 +493,77 @@ class GaussianProcess(object):
             kstar[i] = self.covf.covfunc()
         return kstar
 
-
-    def log_likelihood(self, theta=None, mu='False', muargs=(), prior='False',
-                       priorargs=(), scale='False'):
+    def log_likelihood(
+        self,
+        theta=None,
+        mu="False",
+        muargs=(),
+        prior="False",
+        priorargs=(),
+        scale="False",
+    ):
         # set new attributes
-        if (theta != None):
+        if theta != None:
             self.set_theta(theta)
-        if (mu != 'False'):
-            self.set_mu(mu,muargs)
-        if (prior != 'False'):
+        if mu != "False":
+            self.set_mu(mu, muargs)
+        if prior != "False":
             self.set_prior(prior, self.gradprior, priorargs)
-        if (scale != 'False'):
+        if scale != "False":
             self.set_scale(scale)
-        return (-self.nlog_likelihood())
+        return -self.nlog_likelihood()
 
     # calculate the negative log marginal likelihood -log p(y|X,theta)
     def nlog_likelihood(self):
-        if (self.uptodate == 'False'):
+        if self.uptodate == "False":
             self.input_covariance()
             self.alpha_L()
-            if (self.grad == 'True'):
+            if self.grad == "True":
                 self.grad_covariance()
-            self.uptodate = 'True'
+            self.uptodate = "True"
         # log likelihood of prior
-        if (self.prior != None):
+        if self.prior != None:
             priorp = self.prior(self.covf.theta, *self.priorargs)
-            if (priorp < 0.0):
-                warnings.warn("Invalid prior. Negative prior will " +
-                              "be treated as prior=0.")
-                return 1.0e+20
-            if (priorp == 0.0):
-                return 1.0e+20
+            if priorp < 0.0:
+                warnings.warn(
+                    "Invalid prior. Negative prior will " + "be treated as prior=0."
+                )
+                return 1.0e20
+            if priorp == 0.0:
+                return 1.0e20
             priorlogp = log(priorp)
         else:
             priorlogp = 0.0
         # calculate the negative log marginal likelihood
-        if (self.alpha is None):
-            logp = 1.0e+20 - priorlogp
+        if self.alpha is None:
+            logp = 1.0e20 - priorlogp
         else:
-            logp = -(-0.5 * dot(transpose(self.Y_mu), self.alpha) -
-                      np.sum(log(diagonal(self.L))) - self.n/2 * log(2*pi) +
-                      priorlogp)
+            logp = -(
+                -0.5 * dot(transpose(self.Y_mu), self.alpha)
+                - np.sum(log(diagonal(self.L)))
+                - self.n / 2 * log(2 * pi)
+                + priorlogp
+            )
         return logp
 
     # calculate the negative log marginal likelihood -log p(y|X,theta)
     # and its gradient with respect to theta
     def grad_nlog_likelihood(self):
-        if (self.uptodate == 'False'):
+        if self.uptodate == "False":
             self.input_covariance()
             self.alpha_L()
             self.grad_covariance()
-            self.uptodate = 'True'
+            self.uptodate = "True"
         logp = self.nlog_likelihood()
-        if (self.alpha is None):
+        if self.alpha is None:
             try:
                 self.gradlogp = 0.9 * self.gradlogp
                 return (logp, array(-self.gradlogp))
             except:
-                raise RuntimeError('invalid hyperparameters; ' +
-                                   'covariance matrix not positive definit')
+                raise RuntimeError(
+                    "invalid hyperparameters; "
+                    + "covariance matrix not positive definit"
+                )
         # number of hyperparameters (plus 1 if scale is trained)
         nh = len(self.gradK)
         # calculate trace of alpha*alpha^T gradK
@@ -533,41 +579,45 @@ class GaussianProcess(object):
         trinvAgradK = zeros(nh)
         for t in range(nh):
             for i in range(self.n):
-                trinvAgradK[t] = trinvAgradK[t] + np.sum(invA[i, :] *
-                                                         self.gradK[t, :, i])
+                trinvAgradK[t] = trinvAgradK[t] + np.sum(
+                    invA[i, :] * self.gradK[t, :, i]
+                )
         # gradient of the prior log likelihood
         gradpriorlogp = zeros(nh)
-        if (self.gradprior != None):
+        if self.gradprior != None:
             gradpriorp = self.gradprior(self.covf.theta, *self.priorargs)
-            if (self.prior is None):
-                warnings.warn('no prior given in gp.grad_nlog_likelihood;'
-                              + ' gradprior will be ignored')
+            if self.prior is None:
+                warnings.warn(
+                    "no prior given in gp.grad_nlog_likelihood;"
+                    + " gradprior will be ignored"
+                )
             else:
                 priorp = self.prior(self.covf.theta, *self.priorargs)
                 for t in range(nh):
-                    if (priorp == 0.0 and gradpriorp[t] == 0.0):
+                    if priorp == 0.0 and gradpriorp[t] == 0.0:
                         gradpriorlogp[t] = 0.0
-                    elif (priorp <= 0.0):
+                    elif priorp <= 0.0:
                         gradpriorlogp[t] = sign(gradpriorp[t]) * 1.0e20
                     else:
-                        gradpriorlogp[t] = gradpriorp[t]/priorp
+                        gradpriorlogp[t] = gradpriorp[t] / priorp
         # gradient of the negative log likelihood
         gradlogp = array(-0.5 * (traaTgradK[:] - trinvAgradK[:]) - gradpriorlogp)
         self.gradlogp = gradlogp
-        return(logp, gradlogp)
+        return (logp, gradlogp)
 
     # calculate the predictive mean and standard deviation of (f-mu) at
     # test point xstar
     def prediction(self, xstar):
-        if (self.uptodate == 'False'):
+        if self.uptodate == "False":
             self.input_covariance()
             self.alpha_L()
-            if (self.grad == 'True'):
+            if self.grad == "True":
                 self.grad_covariance()
-            self.uptodate = 'True'
-        if (self.alpha is None):
-            raise RuntimeError('invalid hyperparameters; ' +
-                               'covariance matrix not positive definit')
+            self.uptodate = "True"
+        if self.alpha is None:
+            raise RuntimeError(
+                "invalid hyperparameters; " + "covariance matrix not positive definit"
+            )
         # calculate covariance vector kstar
         kstar = self.covariance_vector(xstar)
         # predictive mean
@@ -578,60 +628,78 @@ class GaussianProcess(object):
         self.covf.x2 = xstar
         covstar = self.covf.covfunc()
         stdev = sqrt(covstar - dot(transpose(v), v))
-        return(mean, stdev)
+        return (mean, stdev)
 
     # train the hyperparameters
-    def hypertrain(self, covfunction=None, theta=None, mu='False', muargs=(),
-                   prior='False', gradprior=None, priorargs=(),
-                   thetatrain=None, scale='False', scaletrain=None, grad=None):
+    def hypertrain(
+        self,
+        covfunction=None,
+        theta=None,
+        mu="False",
+        muargs=(),
+        prior="False",
+        gradprior=None,
+        priorargs=(),
+        thetatrain=None,
+        scale="False",
+        scaletrain=None,
+        grad=None,
+    ):
         # set new attributes
-        if (theta != None):
+        if theta != None:
             self.set_theta(theta)
-        if (covfunction != None):
+        if covfunction != None:
             self.set_covfunction(covfunction)
-        if (mu != 'False'):
-            self.set_mu(mu,muargs)
-        if (prior != 'False'):
+        if mu != "False":
+            self.set_mu(mu, muargs)
+        if prior != "False":
             self.set_prior(prior, gradprior, priorargs)
-        if (thetatrain != None):
+        if thetatrain != None:
             self.set_thetatrain(thetatrain)
-        if (scale != 'False'):
-            if (scaletrain is None):
-                scaletrain = 'True'
+        if scale != "False":
+            if scaletrain is None:
+                scaletrain = "True"
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
-        elif (scaletrain != None):
+        elif scaletrain != None:
             self.set_scaletrain(scaletrain)
-        if (grad != None):
+        if grad != None:
             self.set_grad(grad)
-        if (self.thetatrain == 'False' and self.covf.scaletrain == 'False'):
-            raise RuntimeError("thetatrain='False' and scaletrain=='False', " +
-                               "i.e. no hyperparameters are to be trained.")
-        return(self.fhypertrain())
+        if self.thetatrain == "False" and self.covf.scaletrain == "False":
+            raise RuntimeError(
+                "thetatrain='False' and scaletrain=='False', "
+                + "i.e. no hyperparameters are to be trained."
+            )
+        return self.fhypertrain()
 
     def fhypertrain(self):
         # train the hyperparameters
         initheta = self.covf.theta
-        if (self.grad == 'True'):
-            if (self.prior != None and self.gradprior is None):
-                raise RuntimeError("no gradprior given in " +
-                                   "grad_nlog_likelihood \n" +
-                                   "Possible solutions: \n" +
-                                   "(1) provide gradient of the prior, " +
-                                   "gradprior \n" +
-                                   "(2) set prior=None, i.e. no prior on" +
-                                   " the hyperparameters will be used \n" +
-                                   "(3) set grad='False', i.e. prior will" +
-                                   " be used, but Gaussian process is slower")
+        if self.grad == "True":
+            if self.prior != None and self.gradprior is None:
+                raise RuntimeError(
+                    "no gradprior given in "
+                    + "grad_nlog_likelihood \n"
+                    + "Possible solutions: \n"
+                    + "(1) provide gradient of the prior, "
+                    + "gradprior \n"
+                    + "(2) set prior=None, i.e. no prior on"
+                    + " the hyperparameters will be used \n"
+                    + "(3) set grad='False', i.e. prior will"
+                    + " be used, but Gaussian process is slower"
+                )
             bounds = self.covf.bounds()
-            if (self.covf.scaletrain == 'False'):
+            if self.covf.scaletrain == "False":
                 # all hyperparameters will be trained
-                if (self.thetatrain == 'True'):
+                if self.thetatrain == "True":
+
                     def logpfunc(theta):
                         self.set_theta(theta)
                         return self.grad_nlog_likelihood()
-                    theta = opt.fmin_tnc(logpfunc, initheta, bounds=bounds,
-                                         messages=8)[0]
+
+                    theta = opt.fmin_tnc(logpfunc, initheta, bounds=bounds, messages=8)[
+                        0
+                    ]
                 # some hyperparameters will be trained
                 else:
                     # indices of the hyperparameters that are to be trained
@@ -641,56 +709,63 @@ class GaussianProcess(object):
                     bound = []
                     for i in range(len(indices)):
                         bound.append(bounds[indices[i]])
-                    theta = initheta   # initialize theta
+                    theta = initheta  # initialize theta
+
                     def logpfunc(th):
                         for i in range(len(indices)):
                             theta[indices[i]] = th[i]
                         self.set_theta(theta)
-                        (logp,gradlogp) = self.grad_nlog_likelihood()
-                        gradlogp = take(gradlogp,indices)
+                        (logp, gradlogp) = self.grad_nlog_likelihood()
+                        gradlogp = take(gradlogp, indices)
                         return (logp, gradlogp)
-                    th = opt.fmin_tnc(logpfunc, inith, bounds=bound,
-                                      messages=8)[0]
+
+                    th = opt.fmin_tnc(logpfunc, inith, bounds=bound, messages=8)[0]
                     for i in range(len(indices)):
                         theta[indices[i]] = th[i]
-                print ("")
-                print ("Optimized hyperparameters:")
-                print ("theta = " + str(theta))
+                print("")
+                print("Optimized hyperparameters:")
+                print("theta = " + str(theta))
                 return theta
             else:
                 # scale and all hyperparameters will be trained
-                if (self.thetatrain == 'True'):
+                if self.thetatrain == "True":
                     # initheta_s contains initheta and s
                     initheta_s = append(array(initheta), self.scale)
-                    def logpfunc(theta_s): # theta_s contains theta and s
-                        sds = (theta_s[len(theta_s)-1], self.covf.dscale)
+
+                    def logpfunc(theta_s):  # theta_s contains theta and s
+                        sds = (theta_s[len(theta_s) - 1], self.covf.dscale)
                         self.set_scale(sds)
-                        theta = resize(theta_s, ((len(theta_s) - 1), ))
+                        theta = resize(theta_s, ((len(theta_s) - 1),))
                         self.set_theta(theta)
                         return self.grad_nlog_likelihood()
+
                     # determine theta containing s
-                    theta_s = opt.fmin_tnc(logpfunc, initheta_s,
-                                           bounds=bounds, messages=8)[0]
-                    theta = resize(theta_s, ((len(theta_s) - 1), ))
+                    theta_s = opt.fmin_tnc(
+                        logpfunc, initheta_s, bounds=bounds, messages=8
+                    )[0]
+                    theta = resize(theta_s, ((len(theta_s) - 1),))
                     sds = (theta_s[len(theta_s) - 1], self.covf.dscale)
                     self.set_scale(sds)
                     self.set_theta(theta)
                 # only scale will be trained. hyperparameters are fixed
-                elif (self.thetatrain == 'False'):
-                    bound = ((self.covf.iniscale/1.0e15, None), )
-                    iniscale = (self.scale, )
+                elif self.thetatrain == "False":
+                    bound = ((self.covf.iniscale / 1.0e15, None),)
+                    iniscale = (self.scale,)
                     theta = array(initheta)
+
                     def logpfunc(scale):
-                        sds = (scale,self.covf.dscale)
+                        sds = (scale, self.covf.dscale)
                         self.set_scale(sds)
                         (logp, gradlogp) = self.grad_nlog_likelihood()
-                        gradlogp = gradlogp[len(initheta):]
+                        gradlogp = gradlogp[len(initheta) :]
                         return (logp, gradlogp)
-                    scale = float(opt.fmin_tnc(logpfunc, iniscale,
-                                               bounds=bound, messages=8)[0])
+
+                    scale = float(
+                        opt.fmin_tnc(logpfunc, iniscale, bounds=bound, messages=8)[0]
+                    )
                     sds = (scale, self.covf.dscale)
                     self.set_scale(sds)
-                 # scale and some hyperparameters will be trained
+                # scale and some hyperparameters will be trained
                 else:
                     # indices of the hyperparameters that are to be trained
                     indices = flatnonzero(self.thetatrain)
@@ -702,35 +777,38 @@ class GaussianProcess(object):
                     for i in range(len(indices_s)):
                         bound.append(bounds[indices_s[i]])
                     theta = array(initheta)
+
                     def logpfunc(th_s):
                         for i in range(len(indices)):
                             theta[indices[i]] = th_s[i]
                         self.set_theta(theta)
                         sds = (th_s[len(th_s) - 1], self.covf.dscale)
                         self.set_scale(sds)
-                        (logp,gradlogp) = self.grad_nlog_likelihood()
+                        (logp, gradlogp) = self.grad_nlog_likelihood()
                         gradlogp = take(gradlogp, indices_s)
-                        return (logp,gradlogp)
-                    th_s = opt.fmin_tnc(logpfunc, inith_s, bounds=bound,
-                                        messages=8)[0]
+                        return (logp, gradlogp)
+
+                    th_s = opt.fmin_tnc(logpfunc, inith_s, bounds=bound, messages=8)[0]
                     for i in range(len(indices)):
                         theta[indices[i]] = th_s[i]
                     self.set_theta(theta)
                     sds = (th_s[len(th_s) - 1], self.covf.dscale)
                     self.set_scale(sds)
-                print ("")
-                print ("Optimized hyperparameters:")
-                print ("theta = " + str(theta))
-                print ("scale = " + str(self.scale))
+                print("")
+                print("Optimized hyperparameters:")
+                print("theta = " + str(theta))
+                print("scale = " + str(self.scale))
                 return (self.covf.theta, self.scale)
         else:
-            if (self.covf.scaletrain == 'False'):
+            if self.covf.scaletrain == "False":
                 # all hyperparameters will be trained
-                if (self.thetatrain == 'True'):
+                if self.thetatrain == "True":
                     constraints = self.covf.constraints()
+
                     def logpfunc(theta):
                         self.set_theta(theta)
-                        return(self.nlog_likelihood())
+                        return self.nlog_likelihood()
+
                     theta = opt.fmin_cobyla(logpfunc, initheta, constraints)
                 # some hyperparameters will be trained
                 else:
@@ -739,50 +817,60 @@ class GaussianProcess(object):
                     indices = flatnonzero(self.thetatrain)
                     # array of the initial values of these hyperparameters
                     inith = take(initheta, indices)
-                    theta = initheta   # initialize theta
+                    theta = initheta  # initialize theta
+
                     def logpfunc(th):
                         for i in range(len(indices)):
                             theta[indices[i]] = th[i]
                         self.set_theta(theta)
                         return self.nlog_likelihood()
+
                     th = opt.fmin_cobyla(logpfunc, inith, constraints)
                     for i in range(len(indices)):
                         theta[indices[i]] = th[i]
                 self.set_theta(theta)
-                print ("")
-                print ("Optimized hyperparameters:")
-                print ("theta = " + str(theta))
-                return(theta)
+                print("")
+                print("Optimized hyperparameters:")
+                print("theta = " + str(theta))
+                return theta
             else:
                 # all hyperparameters and the scale will be trained
-                if (self.thetatrain == 'True'):
+                if self.thetatrain == "True":
                     constraints = self.covf.constraints()
                     # initheta_s contains initheta and s
                     initheta_s = append(array(initheta), self.scale)
-                    def logpfunc(theta_s): # theta_s contains theta and s
+
+                    def logpfunc(theta_s):  # theta_s contains theta and s
                         sds = (theta_s[len(theta_s) - 1], self.covf.dscale)
                         self.set_scale(sds)
                         self.set_theta(resize(theta_s, len(theta_s) - 1))
                         return self.nlog_likelihood()
+
                     # determine theta containing s
-                    theta_s = opt.fmin_cobyla(logpfunc, initheta_s,
-                                              constraints, args=(), consargs=())
+                    theta_s = opt.fmin_cobyla(
+                        logpfunc, initheta_s, constraints, args=(), consargs=()
+                    )
                     sds = (theta_s[len(theta_s) - 1], self.covf.dscale)
                     theta = resize(theta_s, len(theta_s) - 1)
                     self.set_scale(sds)
                     self.set_theta(theta)
                 # only scale will be trained. hyperparameters are fixed
-                elif (self.thetatrain == 'False'):
+                elif self.thetatrain == "False":
                     theta = array(self.covf.theta)
+
                     def constr(scale):
-                        return float(scale - self.covf.iniscale/1.0e15)
-                    constraints = (constr, )
+                        return float(scale - self.covf.iniscale / 1.0e15)
+
+                    constraints = (constr,)
+
                     def logpfunc(scale):
                         sds = (scale, self.covf.dscale)
                         self.set_scale(sds)
                         return self.nlog_likelihood()
-                    scale = opt.fmin_cobyla(logpfunc, self.covf.scale,
-                                            constraints, args=(), consargs=())
+
+                    scale = opt.fmin_cobyla(
+                        logpfunc, self.covf.scale, constraints, args=(), consargs=()
+                    )
                     sds = (scale, self.covf.dscale)
                     self.set_scale(sds)
                 # some hyperparameters and the scale will be trained
@@ -795,61 +883,76 @@ class GaussianProcess(object):
                     # array of the initial values of these hyperparameters
                     inith_s = take(append(initheta, self.scale), indices_s)
                     theta = array(self.covf.theta)
+
                     def logpfunc(th_s):
                         for i in range(len(indices)):
                             theta[indices[i]] = th_s[i]
                         self.set_theta(theta)
-                        sds = (th_s[len(th_s)-1], self.covf.dscale)
+                        sds = (th_s[len(th_s) - 1], self.covf.dscale)
                         self.set_scale(sds)
                         return self.nlog_likelihood()
+
                     th_s = opt.fmin_cobyla(logpfunc, inith_s, constraints)
                     for i in range(len(indices)):
                         theta[indices[i]] = th_s[i]
                     self.set_theta(theta)
                     sds = (th_s[len(th_s) - 1], self.covf.dscale)
                     self.set_scale(sds)
-                print ("")
-                print ("Optimized hyperparameters:")
-                print ("theta = " + str(theta))
-                print ("scale = " + str(self.scale))
+                print("")
+                print("Optimized hyperparameters:")
+                print("theta = " + str(theta))
+                print("scale = " + str(self.scale))
                 return (self.covf.theta, self.scale)
 
-
-    def gp(self, theta=None, Xstar=None, cXstar=None, mu='False', muargs=(),
-           prior='False', gradprior=None, priorargs=(), thetatrain=None,
-           scale='False', scaletrain=None, grad=None, unpack='False'):
+    def gp(
+        self,
+        theta=None,
+        Xstar=None,
+        cXstar=None,
+        mu="False",
+        muargs=(),
+        prior="False",
+        gradprior=None,
+        priorargs=(),
+        thetatrain=None,
+        scale="False",
+        scaletrain=None,
+        grad=None,
+        unpack="False",
+    ):
         # set new attributes
-        if (theta != None):
+        if theta != None:
             self.set_theta(theta)
-        if (Xstar != None):
+        if Xstar != None:
             self.set_Xstar(Xstar)
-            if (cXstar != None):
-                warnings.warn("Xstar and cXstar given in gp. " +
-                              "cXstar will be ignored.")
-        elif (cXstar != None):
+            if cXstar != None:
+                warnings.warn(
+                    "Xstar and cXstar given in gp. " + "cXstar will be ignored."
+                )
+        elif cXstar != None:
             self.create_Xstar(cXstar[0], cXstar[1], cXstar[2])
-        if (mu != 'False'):
-            self.set_mu(mu,muargs)
-        if (prior != 'False'):
+        if mu != "False":
+            self.set_mu(mu, muargs)
+        if prior != "False":
             self.set_prior(prior, gradprior, priorargs)
-        if (thetatrain != None):
+        if thetatrain != None:
             self.set_thetatrain(thetatrain)
-        if (scale != 'False'):
-            if (scaletrain is None):
-                scaletrain = 'True'
+        if scale != "False":
+            if scaletrain is None:
+                scaletrain = "True"
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
-        elif (scaletrain != None):
+        elif scaletrain != None:
             self.set_scaletrain(scaletrain)
-        if (grad != None):
+        if grad != None:
             self.set_grad(grad)
         # GP run
-        return(self.fgp(unpack=unpack))
+        return self.fgp(unpack=unpack)
 
     # full Gaussian process run
     def fgp(self, unpack):
         # train the hyperparameters
-        if (self.thetatrain != 'False' or self.covf.scaletrain == 'True'):
+        if self.thetatrain != "False" or self.covf.scaletrain == "True":
             self.hypertrain()
         # reconstruct f(x)
         fmean_mu = zeros(self.nstar)
@@ -857,29 +960,30 @@ class GaussianProcess(object):
         fstd = zeros(self.nstar)
         for i in range(self.nstar):
             (fmean_mu[i], fstd[i]) = self.prediction(self.Xstar[i, :])
-        if (self.mu != None):
+        if self.mu != None:
             for i in range(self.nstar):
-                fmean[i] = fmean_mu[i] + self.mu(self.Xstar[i, :],
-                                                 *self.muargs)
+                fmean[i] = fmean_mu[i] + self.mu(self.Xstar[i, :], *self.muargs)
         else:
             fmean = fmean_mu[:]
         self.fmean_mu = fmean_mu
         self.fstd_mu = fstd
         self.fmean = fmean
         self.fstd = fstd
-        self.reconstruction = concatenate((self.Xstar,
-                                           reshape(fmean, (self.nstar, 1)),
-                                           reshape(fstd, (self.nstar, 1))),
-                                          axis=1)
-        if (self.scale is None):
-            if (unpack == 'False'):
-                return(self.reconstruction, self.covf.theta)
+        self.reconstruction = concatenate(
+            (
+                self.Xstar,
+                reshape(fmean, (self.nstar, 1)),
+                reshape(fstd, (self.nstar, 1)),
+            ),
+            axis=1,
+        )
+        if self.scale is None:
+            if unpack == "False":
+                return (self.reconstruction, self.covf.theta)
             else:
-                return(self.Xstar, self.fmean, self.fstd, self.covf.theta)
+                return (self.Xstar, self.fmean, self.fstd, self.covf.theta)
         else:
-            if (unpack == 'False'):
-                return(self.reconstruction, self.covf.theta, self.scale)
+            if unpack == "False":
+                return (self.reconstruction, self.covf.theta, self.scale)
             else:
-                return(self.Xstar, self.fmean, self.fstd, self.covf.theta,
-                       self.scale)
-
+                return (self.Xstar, self.fmean, self.fstd, self.covf.theta, self.scale)
