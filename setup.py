@@ -3,11 +3,13 @@
 from distutils.core import setup
 
 setup(
-    name="GaPP",
+    name="neogapp",
     version="1.0",
-    description="Gaussian Processes in Python",
-    author="Marina Seikel",
-    author_email="marina@jorrit.de",
+    description="A modernised version of the Gaussian Processes in Python package to be used natively with Python 3",
+    author="Isaac Cilia Attard",
+    author_email="contact@isaacciliaattard.com",
+    original_author="Marina Seikel",
+    original_author_email="marina@jorrit.de",
     url="http://www.acgc.uct.ac.za/~seikel/GAPP/index.html",
     packages=["gapp", "gapp.covfunctions"],
 )
