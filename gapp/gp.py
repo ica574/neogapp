@@ -109,15 +109,15 @@ class GaussianProcess(object):
         # observational data
         self.set_data(X, Y, Sigma)
         # vector (or matrix) of the locations where f(x) is to be reconstructed
-        if Xstar != None:
+        if Xstar is not None:
             self.set_Xstar(Xstar)
-            if cXstar != None:
+            if cXstar is not None:
                 warnings.warn(
                     "Xstar and cXstar given in the "
                     + "initialization of GaussianProcess. \n"
                     + "cXstar will be ignored."
                 )
-        elif cXstar != None:
+        elif cXstar is not None:
             # create Xstar with cXstar = (xmin,xmax,nstar)
             xmin = cXstar[0]
             xmax = cXstar[1]
@@ -126,9 +126,9 @@ class GaussianProcess(object):
             assert shape(xmin) in [(), (1,), (d,)], "xmin does not fit shape of X."
             assert shape(xmax) in [(), (1,), (d,)], "xmax does not fit shape of X."
             if d > 1:
-                if xmin != None and shape(xmin) in [(), (1,)]:
+                if xmin is not None and shape(xmin) in [(), (1,)]:
                     xmin = xmin * ones(d)
-                if xmax != None and shape(xmax) in [(), (1,)]:
+                if xmax is not None and shape(xmax) in [(), (1,)]:
                     xmax = xmax * ones(d)
             if xmin is None or xmax is None:
                 self.auto_create_Xstar(xmin, xmax, nstar)
@@ -177,7 +177,7 @@ class GaussianProcess(object):
         # number of data points
         self.n = n
         try:
-            if self.dmu != None:
+            if self.dmu is not None:
                 self.subtract_dmu()
         except AttributeError:
             pass
@@ -483,7 +483,7 @@ class GaussianProcess(object):
         scale="False",
     ):
         # set new attributes
-        if theta != None:
+        if theta is not None:
             self.set_theta(theta)
         if mu != "False":
             self.set_mu(mu, muargs)
@@ -502,7 +502,7 @@ class GaussianProcess(object):
                 self.grad_covariance()
             self.uptodate = "True"
         # log likelihood of prior
-        if self.prior != None:
+        if self.prior is not None:
             priorp = self.prior(self.covf.theta, *self.priorargs)
             if priorp < 0.0:
                 warnings.warn(
@@ -564,7 +564,7 @@ class GaussianProcess(object):
                 )
         # gradient of the prior log likelihood
         gradpriorlogp = zeros(nh)
-        if self.gradprior != None:
+        if self.gradprior is not None:
             gradpriorp = self.gradprior(self.covf.theta, *self.priorargs)
             if self.prior is None:
                 warnings.warn(
@@ -626,24 +626,24 @@ class GaussianProcess(object):
         grad=None,
     ):
         # set new attributes
-        if theta != None:
+        if theta is not None:
             self.set_theta(theta)
-        if covfunction != None:
+        if covfunction is not None:
             self.set_covfunction(covfunction)
         if mu != "False":
             self.set_mu(mu, muargs)
         if prior != "False":
             self.set_prior(prior, gradprior, priorargs)
-        if thetatrain != None:
+        if thetatrain is not None:
             self.set_thetatrain(thetatrain)
         if scale != "False":
             if scaletrain is None:
                 scaletrain = "True"
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
-        elif scaletrain != None:
+        elif scaletrain is not None:
             self.set_scaletrain(scaletrain)
-        if grad != None:
+        if grad is not None:
             self.set_grad(grad)
         if self.thetatrain == "False" and self.covf.scaletrain == "False":
             raise RuntimeError(
@@ -656,7 +656,7 @@ class GaussianProcess(object):
         # train the hyperparameters
         initheta = self.covf.theta
         if self.grad == "True":
-            if self.prior != None and self.gradprior is None:
+            if self.prior is not None and self.gradprior is None:
                 raise RuntimeError(
                     "no gradprior given in "
                     + "grad_nlog_likelihood \n"
@@ -901,30 +901,30 @@ class GaussianProcess(object):
         unpack="False",
     ):
         # set new attributes
-        if theta != None:
+        if theta is not None:
             self.set_theta(theta)
-        if Xstar != None:
+        if Xstar is not None:
             self.set_Xstar(Xstar)
-            if cXstar != None:
+            if cXstar is not None:
                 warnings.warn(
                     "Xstar and cXstar given in gp. " + "cXstar will be ignored."
                 )
-        elif cXstar != None:
+        elif cXstar is not None:
             self.create_Xstar(cXstar[0], cXstar[1], cXstar[2])
         if mu != "False":
             self.set_mu(mu, muargs)
         if prior != "False":
             self.set_prior(prior, gradprior, priorargs)
-        if thetatrain != None:
+        if thetatrain is not None:
             self.set_thetatrain(thetatrain)
         if scale != "False":
             if scaletrain is None:
                 scaletrain = "True"
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
-        elif scaletrain != None:
+        elif scaletrain is not None:
             self.set_scaletrain(scaletrain)
-        if grad != None:
+        if grad is not None:
             self.set_grad(grad)
         # GP run
         return self.fgp(unpack=unpack)
@@ -940,7 +940,7 @@ class GaussianProcess(object):
         fstd = zeros(self.nstar)
         for i in range(self.nstar):
             (fmean_mu[i], fstd[i]) = self.prediction(self.Xstar[i, :])
-        if self.mu != None:
+        if self.mu is not None:
             for i in range(self.nstar):
                 fmean[i] = fmean_mu[i] + self.mu(self.Xstar[i, :], *self.muargs)
         else:

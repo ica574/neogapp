@@ -143,7 +143,7 @@ def recthread(
 
 def recarray(j, recj, fcovj, k, nsample):
     try:
-        if fcovj != None:
+        if fcovj is not None:
             rarr = random.multivariate_normal(
                 recj[0, 0, :], fcovj[0, :, :], k[0] * nsample
             )
@@ -199,7 +199,7 @@ class MCMCDGaussianProcess(dgp.DGaussianProcess):
         nsample=50,
         sampling="True",
     ):
-        if scale0 != None:
+        if scale0 is not None:
             assert len(theta0) == len(
                 scale0
             ), "Lengths of theta0 and scale0 must be identical."

@@ -125,7 +125,7 @@ class MCMCGaussianProcess(gp.GaussianProcess):
         nsample=50,
         sampling="True",
     ):
-        if scale0 != None:
+        if scale0 is not None:
             assert len(theta0) == len(
                 scale0
             ), "Lengths of theta0 and scale0 must be identical."

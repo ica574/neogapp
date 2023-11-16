@@ -112,7 +112,7 @@ class DGaussianProcess(gp.GaussianProcess):
             self.dSigma = array(reshape(dSigma**2, (1, 1)))
             self.dn = 1
             try:
-                if self.dmu != None:
+                if self.dmu is not None:
                     self.subtract_dmu()
             except AttributeError:
                 pass
@@ -136,7 +136,7 @@ class DGaussianProcess(gp.GaussianProcess):
                 raise AssertionError("dSigma must be vector or nxn matrix.")
             self.dn = dn  # number of data points
             try:
-                if self.dmu != None:
+                if self.dmu is not None:
                     self.subtract_dmu()
             except AttributeError:
                 pass
@@ -146,12 +146,12 @@ class DGaussianProcess(gp.GaussianProcess):
     def set_dmu(self, dmu):
         self.uptodate = "False"
         self.dmuptodate = "False"
-        if self.mu is None and dmu != None:
+        if self.mu is None and dmu is not None:
             warnings.warn("dmu given, but mu=None. dmu will be ignored.")
             self.dmu = None
         else:
             self.dmu = dmu
-        if self.dY != None:
+        if self.dY is not None:
             if dmu is None:
                 self.dY_dmu = self.dY[:]
             else:
@@ -161,7 +161,7 @@ class DGaussianProcess(gp.GaussianProcess):
     def set_d2mu(self, d2mu):
         self.uptodate = "False"
         self.dmuptodate = "False"
-        if self.mu is None and d2mu != None:
+        if self.mu is None and d2mu is not None:
             warnings.warn("d2mu given, but mu=None. d2mu will be ignored.")
             self.d2mu = None
         else:
@@ -171,7 +171,7 @@ class DGaussianProcess(gp.GaussianProcess):
     def set_d3mu(self, d3mu):
         self.uptodate = "False"
         self.dmuptodate = "False"
-        if self.mu is None and d3mu != None:
+        if self.mu is None and d3mu is not None:
             warnings.warn("d3mu given, but mu=None. d3mu will be ignored.")
             self.d3mu = None
         else:
@@ -198,12 +198,12 @@ class DGaussianProcess(gp.GaussianProcess):
         scale="False",
     ):
         # set new attributes
-        if theta != None:
+        if theta is not None:
             self.set_theta(theta)
         if dX != "False" and dY != "False" and dSigma != "False":
             self.set_ddata(dX, dY, dSigma)
         elif dX != "False" or dY != "False" or dSigma != "False":
-            if dX != None or dY != None or dSigma != None:
+            if dX is not None or dY is not None or dSigma is not None:
                 self.set_ddata(None, None, None)
             else:
                 warnings.warn(
@@ -243,12 +243,12 @@ class DGaussianProcess(gp.GaussianProcess):
         grad=None,
     ):
         # set new attributes
-        if theta != None:
+        if theta is not None:
             self.set_theta(theta)
         if dX != "False" and dY != "False" and dSigma != "False":
             self.set_ddata(dX, dY, dSigma)
         elif dX != "False" or dY != "False" or dSigma != "False":
-            if dX != None or dY != None or dSigma != None:
+            if dX is not None or dY is not None or dSigma is not None:
                 self.set_ddata(None, None, None)
             else:
                 warnings.warn(
@@ -262,16 +262,16 @@ class DGaussianProcess(gp.GaussianProcess):
             self.set_dmu(dmu)
         if prior != "False":
             self.set_prior(prior, gradprior, priorargs)
-        if thetatrain != None:
+        if thetatrain is not None:
             self.set_thetatrain(thetatrain)
         if scale != "False":
             if scaletrain is None:
                 scaletrain = "True"
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
-        elif scaletrain != None:
+        elif scaletrain is not None:
             self.set_scaletrain(scaletrain)
-        if grad != None:
+        if grad is not None:
             self.set_grad(grad)
         if self.thetatrain == "False" and self.covf.scaletrain == "False":
             raise RuntimeError(
@@ -310,12 +310,12 @@ class DGaussianProcess(gp.GaussianProcess):
         unpack="False",
     ):
         # set new attributes
-        if theta != None:
+        if theta is not None:
             self.set_theta(theta)
         if dX != "False" and dY != "False" and dSigma != "False":
             self.set_ddata(dX, dY, dSigma)
         elif dX != "False" or dY != "False" or dSigma != "False":
-            if dX != None or dY != None or dSigma != None:
+            if dX is not None or dY is not None or dSigma is not None:
                 self.set_ddata(None, None, None)
             else:
                 warnings.warn(
@@ -323,13 +323,13 @@ class DGaussianProcess(gp.GaussianProcess):
                     + "simultaneously. Old values of dX, dY "
                     + "and dSigma will be used."
                 )
-        if Xstar != None:
+        if Xstar is not None:
             self.set_Xstar(Xstar)
-            if cXstar != None:
+            if cXstar is not None:
                 warnings.warn(
                     "Xstar and cXstar given in dpg.gp. \n" + "cXstar will be ignored."
                 )
-        elif cXstar != None:
+        elif cXstar is not None:
             self.create_Xstar(cXstar[0], cXstar[1], cXstar[2])
         if mu != "False":
             self.set_mu(mu, muargs)
@@ -337,14 +337,14 @@ class DGaussianProcess(gp.GaussianProcess):
             self.set_dmu(dmu)
         if prior != "False":
             self.set_prior(prior, gradprior, priorargs)
-        if thetatrain != None:
+        if thetatrain is not None:
             self.set_thetatrain(thetatrain)
         if scale != "False":
             if scaletrain is None:
                 scaletrain = "True"
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
-        if grad != None:
+        if grad is not None:
             self.set_grad(grad)
         # GP run
         if self.dX is None:
@@ -412,12 +412,12 @@ class DGaussianProcess(gp.GaussianProcess):
         unpack="False",
     ):
         # set new attributes
-        if theta != None:
+        if theta is not None:
             self.set_theta(theta)
         if dX != "False" and dY != "False" and dSigma != "False":
             self.set_ddata(dX, dY, dSigma)
         elif dX != "False" or dY != "False" or dSigma != "False":
-            if dX != None or dY != None or dSigma != None:
+            if dX is not None or dY is not None or dSigma is not None:
                 self.set_ddata(None, None, None)
             else:
                 warnings.warn(
@@ -425,31 +425,31 @@ class DGaussianProcess(gp.GaussianProcess):
                     + "simultaneously. Old values of dX, dY and "
                     + "dSigma will be used."
                 )
-        if Xstar != None:
+        if Xstar is not None:
             self.set_Xstar(Xstar)
-            if cXstar != None:
+            if cXstar is not None:
                 warnings.warn("Xstar and cXstar given. cXstar will be" + " ignored.")
-        elif cXstar != None:
+        elif cXstar is not None:
             self.create_Xstar(cXstar[0], cXstar[1], cXstar[2])
         if mu != "False":
             self.set_mu(mu, muargs)
         if dmu != "False":
             self.set_dmu(dmu)
-        if self.dmu is None and self.mu != None:
+        if self.dmu is None and self.mu is not None:
             warnings.warn("mu given, but dmu=None. mu will be ignored")
             self.unset_mu()
         if prior != "False":
             self.set_prior(prior, gradprior, priorargs)
-        if thetatrain != None:
+        if thetatrain is not None:
             self.set_thetatrain(thetatrain)
         if scale != "False":
             if scaletrain is None:
                 scaletrain = "True"
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
-        elif scaletrain != None:
+        elif scaletrain is not None:
             self.set_scaletrain(scaletrain)
-        if grad != None:
+        if grad is not None:
             self.set_grad(grad)
         # GP run
         if self.dX is None:
@@ -471,7 +471,7 @@ class DGaussianProcess(gp.GaussianProcess):
         dfstd = zeros(self.nstar)
         for i in range(self.nstar):
             (dfmean_mu[i], dfstd[i]) = self.dprediction(self.Xstar[i, :])
-        if self.mu != None:
+        if self.mu is not None:
             for i in range(self.nstar):
                 dfmean[i] = dfmean_mu[i] + self.dmu(self.Xstar[i], *self.muargs)
         else:
@@ -566,12 +566,12 @@ class DGaussianProcess(gp.GaussianProcess):
         unpack="False",
     ):
         # set new attributes
-        if theta != None:
+        if theta is not None:
             self.set_theta(theta)
         if dX != "False" and dY != "False" and dSigma != "False":
             self.set_ddata(dX, dY, dSigma)
         elif dX != "False" or dY != "False" or dSigma != "False":
-            if dX != None or dY != None or dSigma != None:
+            if dX is not None or dY is not None or dSigma is not None:
                 self.set_ddata(None, None, None)
             else:
                 warnings.warn(
@@ -579,11 +579,11 @@ class DGaussianProcess(gp.GaussianProcess):
                     + "simultaneously. Old values of dX, dY "
                     + "and dSigma will be used."
                 )
-        if Xstar != None:
+        if Xstar is not None:
             self.set_Xstar(Xstar)
-            if cXstar != None:
+            if cXstar is not None:
                 warnings.warn("Xstar and cXstar given. cXstar will " + "be ignored.")
-        elif cXstar != None:
+        elif cXstar is not None:
             self.create_Xstar(cXstar[0], cXstar[1], cXstar[2])
         if mu != "False":
             self.set_mu(mu, muargs)
@@ -591,22 +591,22 @@ class DGaussianProcess(gp.GaussianProcess):
             self.set_dmu(dmu)
         if d2mu != "False":
             self.set_d2mu(d2mu)
-        if self.dX != None and self.dmu is None and self.mu != None:
+        if self.dX is not None and self.dmu is None and self.mu is not None:
             warnings.warn("mu given, but dmu=None. mu will be ignored")
             self.unset_mu()
-        if self.d2mu is None and self.mu != None:
+        if self.d2mu is None and self.mu is not None:
             warnings.warn("mu given, but d2mu=None. mu will be ignored")
             self.unset_mu()
         if prior != "False":
             self.set_prior(prior, gradprior, priorargs)
-        if thetatrain != None:
+        if thetatrain is not None:
             self.set_thetatrain(thetatrain)
         if scale != "False":
             if scaletrain is None:
                 scaletrain = "True"
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
-        if grad != None:
+        if grad is not None:
             self.set_grad(grad)
         # GP run
         if self.dX is None:
@@ -628,7 +628,7 @@ class DGaussianProcess(gp.GaussianProcess):
         d2fstd = zeros(self.nstar)
         for i in range(self.nstar):
             (d2fmean_mu[i], d2fstd[i]) = self.d2prediction(self.Xstar[i, :])
-        if self.mu != None:
+        if self.mu is not None:
             for i in range(self.nstar):
                 d2fmean[i] = d2fmean_mu[i] + self.d2mu(self.Xstar[i], *self.muargs)
         else:
@@ -723,12 +723,12 @@ class DGaussianProcess(gp.GaussianProcess):
         unpack="False",
     ):
         # set new attributes
-        if theta != None:
+        if theta is not None:
             self.set_theta(theta)
         if dX != "False" and dY != "False" and dSigma != "False":
             self.set_ddata(dX, dY, dSigma)
         elif dX != "False" or dY != "False" or dSigma != "False":
-            if dX != None or dY != None or dSigma != None:
+            if dX is not None or dY is not None or dSigma is not None:
                 self.set_ddata(None, None, None)
             else:
                 warnings.warn(
@@ -736,11 +736,11 @@ class DGaussianProcess(gp.GaussianProcess):
                     + "simultaneously. Old values of dX, dY "
                     + "and dSigma will be used."
                 )
-        if Xstar != None:
+        if Xstar is not None:
             self.set_Xstar(Xstar)
-            if cXstar != None:
+            if cXstar is not None:
                 warnings.warn("Xstar and cXstar given. cXstar will be" + " ignored.")
-        elif cXstar != None:
+        elif cXstar is not None:
             self.create_Xstar(cXstar[0], cXstar[1], cXstar[2])
         if mu != "False":
             self.set_mu(mu, muargs)
@@ -748,22 +748,22 @@ class DGaussianProcess(gp.GaussianProcess):
             self.set_dmu(dmu)
         if d3mu != "False":
             self.set_d3mu(d3mu)
-        if self.dX != None and self.dmu is None and self.mu != None:
+        if self.dX is not None and self.dmu is None and self.mu is not None:
             warnings.warn("mu given, but dmu=None. mu will be ignored")
             self.unset_mu()
-        if self.d3mu is None and self.mu != None:
+        if self.d3mu is None and self.mu is not None:
             warnings.warn("mu given, but d3mu=None. mu will be ignored")
             self.unset_mu()
         if prior != "False":
             self.set_prior(prior, gradprior, priorargs)
-        if thetatrain != None:
+        if thetatrain is not None:
             self.set_thetatrain(thetatrain)
         if scale != "False":
             if scaletrain is None:
                 scaletrain = "True"
             self.set_scale(scale)
             self.set_scaletrain(scaletrain)
-        if grad != None:
+        if grad is not None:
             self.set_grad(grad)
         # GP run
         if self.dX is None:
@@ -785,7 +785,7 @@ class DGaussianProcess(gp.GaussianProcess):
         d3fstd = zeros(self.nstar)
         for i in range(self.nstar):
             (d3fmean_mu[i], d3fstd[i]) = self.d3prediction(self.Xstar[i, :])
-        if self.mu != None:
+        if self.mu is not None:
             for i in range(self.nstar):
                 d3fmean[i] = d3fmean_mu[i] + self.d3mu(self.Xstar[i], *self.muargs)
         else:
@@ -1078,7 +1078,7 @@ class DGaussianProcess(gp.GaussianProcess):
                 self.dm_grad_covariance()
             self.dmuptodate = "True"
         # log likelihood of prior
-        if self.prior != None:
+        if self.prior is not None:
             priorp = self.prior(self.covf.theta, *self.priorargs)
             if priorp < 0.0:
                 warnings.warn(
@@ -1140,7 +1140,7 @@ class DGaussianProcess(gp.GaussianProcess):
                 )
         # gradient of the prior log likelihood
         gradpriorlogp = zeros(nh)
-        if self.gradprior != None:
+        if self.gradprior is not None:
             gradpriorp = self.gradprior(self.covf.theta, *self.priorargs)
             if self.prior is None:
                 warnings.warn("No prior given. gradprior will be ignored")
@@ -1188,7 +1188,7 @@ class DGaussianProcess(gp.GaussianProcess):
         # train the hyperparameters
         initheta = self.covf.theta
         if self.grad == "True":
-            if self.prior != None and self.gradprior is None:
+            if self.prior is not None and self.gradprior is None:
                 raise RuntimeError(
                     "no gradprior given in "
                     + "grad_nlog_likelihood \n"
@@ -1520,7 +1520,7 @@ class DGaussianProcess(gp.GaussianProcess):
         fstd = zeros(self.nstar)
         for i in range(self.nstar):
             (fmean_mu[i], fstd[i]) = self.dm_prediction(self.Xstar[i, :])
-        if self.mu != None:
+        if self.mu is not None:
             for i in range(self.nstar):
                 fmean[i] = fmean_mu[i] + self.mu(self.Xstar[i], *self.muargs)
         else:
@@ -1622,7 +1622,7 @@ class DGaussianProcess(gp.GaussianProcess):
         dfstd = zeros(self.nstar)
         for i in range(self.nstar):
             (dfmean_mu[i], dfstd[i]) = self.dm_d_prediction(self.Xstar[i, :])
-        if self.mu != None:
+        if self.mu is not None:
             for i in range(self.nstar):
                 dfmean[i] = dfmean_mu[i] + self.dmu(self.Xstar[i], *self.muargs)
         else:
@@ -1725,7 +1725,7 @@ class DGaussianProcess(gp.GaussianProcess):
         d2fstd = zeros(self.nstar)
         for i in range(self.nstar):
             (d2fmean_mu[i], d2fstd[i]) = self.dm_d2_prediction(self.Xstar[i, :])
-        if self.mu != None:
+        if self.mu is not None:
             for i in range(self.nstar):
                 d2fmean[i] = d2fmean_mu[i] + self.d2mu(self.Xstar[i], *self.muargs)
         else:
@@ -1828,7 +1828,7 @@ class DGaussianProcess(gp.GaussianProcess):
         d3fstd = zeros(self.nstar)
         for i in range(self.nstar):
             (d3fmean_mu[i], d3fstd[i]) = self.dm_d3_prediction(self.Xstar[i, :])
-        if self.mu != None:
+        if self.mu is not None:
             for i in range(self.nstar):
                 d3fmean[i] = d3fmean_mu[i] + self.d3mu(self.Xstar[i], *self.muargs)
         else:
