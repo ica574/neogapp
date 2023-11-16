@@ -1,8 +1,9 @@
+import os
+
 import numpy as np
 from numpy import loadtxt, random, savetxt, zeros
 
 from gapp import mcmcdgp
-import os
 
 if __name__ == "__main__":
     file_path = os.path.abspath(os.path.join("examples", "data", "inputdata.txt"))

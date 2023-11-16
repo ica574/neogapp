@@ -4,10 +4,11 @@ You can run it with 'python dgp_example.py'.
 """
 
 
+import os
+
 from numpy import loadtxt, savetxt
 
 from gapp import dgp
-import os
 
 if __name__ == "__main__":
     # load the data from inputdata.txt

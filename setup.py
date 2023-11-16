@@ -14,10 +14,10 @@ setup(
     url="http://www.acgc.uct.ac.za/~seikel/GAPP/index.html",
     packages=["gapp", "gapp.covfunctions"],
     install_requires=[
-        'numpy',
-        'scipy',
-        'matplotlib',
-        'emcee',
-        'acor',
-    ]
+        "numpy",
+        "scipy",
+        "matplotlib",
+        "emcee",
+        "acor",
+    ],
 )

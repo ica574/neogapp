@@ -30,13 +30,13 @@
 # dm_dgp: reconstruction of f'(x) using measurements of f(x) and f'(x)
 # dm_d2gp: reconstruction of f''(x) using measurements of f(x) and f'(x)
 
-from . import covariance
-from . import gp
 import numpy as np
 import scipy.optimize as opt
 from numpy import (append, array, concatenate, diagonal, dot, eye, flatnonzero,
                    linalg, log, pi, reshape, resize, shape, sqrt, take,
                    transpose, zeros)
+
+from . import covariance, gp
 
 
 class DGaussianProcess(gp.GaussianProcess):
