@@ -10,7 +10,8 @@ from gapp import dgp
 
 if __name__ == "__main__":
     # load the data from inputdata.txt
-    (X, Y, Sigma) = loadtxt("../inputdata.txt", unpack="True")
+    file_path = os.path.abspath(os.path.join("examples", "data", "inputdata.txt"))
+    (X, Y, Sigma) = loadtxt(file_path, unpack="True")
 
     # nstar points of the function will be reconstructed
     # between xmin and xmax

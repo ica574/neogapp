@@ -12,7 +12,7 @@ from gapp import gp
 
 if __name__ == "__main__":
     # load the data from inputdata.txt
-    file_path = os.path.abspath("2d-inputdata.txt")
+    file_path = os.path.abspath(os.path.join("examples", "data", "2d-inputdata.txt"))
     X = np.loadtxt(file_path, usecols=(0, 1))
     (Y, Sigma) = np.loadtxt(file_path, usecols=(2, 3), unpack="True")
 

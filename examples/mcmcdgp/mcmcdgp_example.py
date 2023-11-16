@@ -4,8 +4,10 @@ from numpy import loadtxt, random, savetxt, zeros
 from gapp import mcmcdgp
 
 if __name__ == "__main__":
-    (X, Y, Sigma) = loadtxt("../inputdata.txt", unpack="True")
-    (DX, DY, DSigma) = loadtxt("../dinputdata.txt", unpack="True")
+    file_path = os.path.abspath(os.path.join("examples", "data", "inputdata.txt"))
+    file_path2 = os.path.abspath(os.path.join("examples", "data", "dinputdata.txt"))
+    (X, Y, Sigma) = loadtxt(file_path, unpack="True")
+    (DX, DY, DSigma) = loadtxt(file_path2, unpack="True")
 
     xmin = 0.0
     xmax = 10.0

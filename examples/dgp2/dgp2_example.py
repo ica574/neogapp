@@ -11,8 +11,10 @@ from gapp import covariance, dgp
 if __name__ == "__main__":
     # load the measurements of f(x) from inputdata.txt
     # and the measurements of f'(x) from dinputdata.txt
-    (X, Y, Sigma) = loadtxt("../inputdata.txt", unpack="True")
-    (DX, DY, DSigma) = loadtxt("../dinputdata.txt", unpack="True")
+    file_path = os.path.abspath(os.path.join("examples", "data", "inputdata.txt"))
+    file_path2 = os.path.abspath(os.path.join("examples", "data", "dinputdata.txt"))
+    (X, Y, Sigma) = loadtxt(file_path, unpack="True")
+    (DX, DY, DSigma) = loadtxt(file_path2, unpack="True")
 
     # nstar points of the function will be reconstructed
     # between xmin and xmax
