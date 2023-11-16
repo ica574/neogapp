@@ -7,6 +7,7 @@ You can run it with 'python dgp2_example.py'.
 from numpy import loadtxt, savetxt
 
 from gapp import covariance, dgp
+import os
 
 if __name__ == "__main__":
     # load the measurements of f(x) from inputdata.txt
