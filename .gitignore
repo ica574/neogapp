@@ -1,3 +1,6 @@
+*.pdf
+*.txt
+
 # Editors
 .vscode/
 .idea/
